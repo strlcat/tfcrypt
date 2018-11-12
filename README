@@ -1,0 +1,65 @@
+tfcrypt -- high security Threefish encryption tool.
+
+tfcrypt is a modern, dd(1)-like raw data manipulation tool with embedded strong encryption.
+It has precise IO layer inside which can be used to encrypt files, disks and other media,
+as well as to manipulate raw data directly, dd(1) style.
+
+tfcrypt uses Skein and Threefish - public domain SHA3 candidate from famous,
+well recognised cryptographer Bruce Schneier, author of famous, still uncracked
+Blowfish and Twofish ciphers, which are in use still up to today.
+
+tfcrypt is actually a frontend for Threefish with (by default) XTS mode of operation.
+As a key it uses either password or keyfile, which is then hashed many times
+with Skein hash function. Default key length is 1280 bits (160 bytes).
+
+This program is incompatible with older, "tf1024" tfcrypt version. This version aims to
+provide a portable encryption tool to encrypt fixed media such as disks and archive files,
+as well as to provide decades long privacy for encrypted data. That's why it uses 1024 bit
+encryption and, unlike older version, extends key size to 1280 bits, eliminates tweak feature
+from Threefish and uses either XTS (by default) or OCB modes of operation instead,
+to encrypt fixed media in a secure undetectable way.
+
+Supported modes of operation: CTR, ECB, CBC, XTS, OCB and arbitrary long keystream.
+OCB mode does not use Skein hash function to hash and verify message, instead, it does
+a single pass crypt and verify, thus, it is faster than other modes when both crypt and verify.
+
+THREEFISH NOTES
+
+Please note that this encryption software includes Threefish cipher, which is terribly
+slow on 32 bit systems. This way, it cannot be efficiently used on pure 32 bit machines.
+
+Threefish contained here is stripped off of it's tweak property, thus, it is turned into a
+regular block cipher. To add tweakability, either XTS or OCB modes of operation are used.
+Default wide block size is 4096 bytes. Author strongly believes that Threefish _may_ be subject
+to related key attacks when used in a tweaked mode, so this property is easy to remove.
+Because tweak occupied another 192 bits of key material, these 192 bits are added to effective
+key length. Another key word is extracted from the sum of all the user key words, thus,
+another 64 bits. Total +256 additional bits of key = 1280 key bits.
+
+SKEIN NOTES
+
+Unlike "tf1024" implementation, this Skein's MAC feature simply copies user rawkey into
+Skein structure context without preprocessing as defined by official Skein implementation.
+If you never used MAC feature, then you will get the same hashes as the official Skein.
+If you did, then possibly you used it together with encryption. Since this implementation
+employs longer key lengths, it's anyway time to move.
+
+Author believes that there is no problem with just copying raw MAC key versus preprocessing.
+A preprocessing is already done by separate Skein sequential invocations on the user long
+key material. The code becomes simpler and easier to understand.
+
+Apart from that, the Skein implementation here is fully conformant to the official one.
+
+TODO
+
+Add test vectors from older version, as well as test data for all modes of operation there.
+
+LICENSE
+
+This tfcrypt, unlike it's previous version, is copyrighted:
+
+	Copyright (C) Andrey Rys <rys@lynxlynx.ru>, 2012-2018.
+
+It maybe freely used by anyone who agrees to the terms and conditions of the MIT license.
+
+tfcipher code parts used are public domain, and maybe reused freely without license.

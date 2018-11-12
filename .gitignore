@@ -1,0 +1,13 @@
+_*
+*.swp
+*.o
+*.out
+*.key
+*.diff
+*.patch
+tags
+tfcrypt
+tfcrypt.upx
+sksum
+tfbench
+tfbase64
