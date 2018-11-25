@@ -860,7 +860,7 @@ _xts2genkey:	if (write(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == -1) xerror(NO,
 			switch (do_outfmt) {
 				case TFC_OUTFMT_B64: tfc_printbase64(stderr, ctr, ctrsz, YES); break;
 				case TFC_OUTFMT_RAW: write(2, ctr, ctrsz); break;
-				case TFC_OUTFMT_HEX: mhexdump(ctr, ctrsz, ctrsz, YES); break;
+				case TFC_OUTFMT_HEX: mehexdump(ctr, ctrsz, ctrsz, YES); break;
 			}
 			break;
 		case TFC_CTR_RAND: tfc_getrandom(ctr, ctrsz); break;
@@ -1093,7 +1093,7 @@ _macragain:		lio = read(sfd, pblk, lrem);
 				tfc_esay("%s: signature is good", progname);
 				if (verbose) {
 					if (do_outfmt == TFC_OUTFMT_B64) tfc_printbase64(stderr, macresult, TF_FROM_BITS(macbits), YES);
-					else mhexdump(macresult, TF_FROM_BITS(macbits), TF_FROM_BITS(macbits), YES);
+					else mehexdump(macresult, TF_FROM_BITS(macbits), TF_FROM_BITS(macbits), YES);
 				}
 			}
 		}
