@@ -63,8 +63,11 @@ int main(int argc, char **argv)
 	if (!isatty(2)) do_statline_dynamic = NO;
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "s:aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
 		switch (c) {
+			case 's':
+				saltf = optarg;
+				break;
 			case 'r':
 				randsource = optarg;
 				break;
@@ -143,6 +146,7 @@ int main(int argc, char **argv)
 				tweakf = optarg;
 				break;
 			case 'T':
+				tfc_saltsz = 0;
 				do_tfcrypt1 = YES;
 				break;
 			case 'l':
@@ -466,6 +470,23 @@ int main(int argc, char **argv)
 	errno = 0;
 	do_stop = NO;
 
+	if (saltf) {
+		int saltfd;
+
+		memset(tfc_salt, 0, TFC_MAX_SALT);
+		tfc_saltsz = 0;
+		if (!strcasecmp(saltf, "disable")) goto _nosalt;
+
+		if (!strcmp(saltf, "-")) saltfd = 0;
+		else saltfd = open(saltf, O_RDONLY | O_LARGEFILE);
+		if (saltfd == -1) xerror(NO, NO, YES, "%s", saltf);
+		lio = read(saltfd, tfc_salt, TFC_MAX_SALT - TF_FROM_BITS(TFC_KEY_BITS));
+		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", saltf);
+		tfc_saltsz = lio;
+		xclose(saltfd);
+	}
+
+_nosalt:
 	if (mackey_opt == TFC_MACKEY_FILE && mackeyf) {
 		int mkfd = -1;
 		tfc_yesno do_stop;
@@ -786,9 +807,14 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 			xerror(NO, NO, YES, "hashing key");
 	}
 
-	if (nr_turns > 1 && rawkey == NO) {
-		for (x = 0; x < nr_turns; x++)
+	if (rawkey == NO) {
+		if (tfc_saltsz > 0) {
+			memcpy(tfc_salt+tfc_saltsz, key, TF_FROM_BITS(TFC_KEY_BITS));
+			skein(key, TFC_KEY_BITS, mackey_opt ? mackey : NULL, tfc_salt, tfc_saltsz+TF_FROM_BITS(TFC_KEY_BITS));
+		}
+		if (nr_turns > 1) for (x = 0; x < nr_turns; x++)
 			skein(key, TFC_KEY_BITS, mackey_opt ? mackey : NULL, key, TF_FROM_BITS(TFC_KEY_BITS));
+		memset(tfc_salt, 0, TFC_MAX_SALT);
 	}
 
 	if (ctr_mode == TFC_MODE_XTS && rawkey == NO) {

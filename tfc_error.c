@@ -151,6 +151,8 @@ void usage(void)
 	tfc_say("convert encrypted data into ASCII format to ease transmission.");
 	tfc_say("\n");
 	tfc_say("  -e, -d: encrypt, decrypt (it maybe required).");
+	tfc_say("  -s <file>: load tfcrypt salt from file.");
+	tfc_say("  -s disable: disable key salting at all.");
 	tfc_say("  -p: instead of using key, ask for password.");
 	tfc_say("  -k: use raw (%u byte) key instead of deriving it from arbitrary data.", TFC_U(TF_KEY_SIZE));
 	tfc_say("  -z: ask for key in plain C string form through password asker.");

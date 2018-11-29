@@ -27,13 +27,10 @@
  */
 
 #include "tfcrypt.h"
+#include "tfcrypt_defs.h"
 
 char *progname;
 int exitcode;
-
-size_t nr_turns = TFC_NR_TURNS;
-int ctr_mode = TFC_CTR_MODE;
-size_t macbits = TF_MAX_BITS;
 
 tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)];
 struct skein sk;
@@ -67,7 +64,7 @@ tfc_yesno catch_all_errors, password, overwrite_source, do_fsync, do_pad, do_tfc
 tfc_yesno do_preserve_time, do_stats_in_gibs, do_statline_dynamic = YES, do_less_stats;
 tfc_yesno no_repeat, do_full_hexdump = YES, verbose, statline_was_shown;
 char *srcfname = TFC_STDIN_NAME, *dstfname = TFC_STDOUT_NAME, *do_mac_file, *counter_file, *sksum_hashlist_file;
-char *genkeyf, *mackeyf, *tweakf;
+char *saltf, *genkeyf, *mackeyf, *tweakf;
 char *pw_prompt, *mac_pw_prompt;
 tfc_useconds status_timer, bench_timer;
 tfc_useconds current_time, delta_time;

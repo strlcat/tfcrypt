@@ -72,16 +72,12 @@ typedef TF_BYTE_TYPE tfc_byte;
 typedef unsigned long long tfc_fsize;
 typedef unsigned long long tfc_useconds;
 
-#ifndef TFC_NR_TURNS
-#define TFC_NR_TURNS 262144
-#endif
-
-#ifndef TFC_CTR_MODE
-#define TFC_CTR_MODE TFC_MODE_XTS
-#endif
-
 #ifndef TFC_BLKSIZE
 #define TFC_BLKSIZE 65536
+#endif
+
+#ifndef TFC_MAX_SALT
+#define TFC_MAX_SALT (2048 + TF_KEY_SIZE)
 #endif
 
 #ifndef TFC_XTSBLOCKS
@@ -117,11 +113,14 @@ int xmhexdump(int to, const void *data, size_t szdata, int hgroup, int hexstr, i
 #define mhexdump(data, szdata, group, newline) xmhexdump(1, data, szdata, group, do_full_hexdump, newline)
 #define mehexdump(data, szdata, group, newline) xmhexdump(2, data, szdata, group, do_full_hexdump, newline)
 
-extern char *progname;
-extern int exitcode;
 extern size_t nr_turns;
 extern int ctr_mode;
 extern size_t macbits;
+extern size_t tfc_saltsz;
+extern tfc_byte tfc_salt[TFC_MAX_SALT];
+
+extern char *progname;
+extern int exitcode;
 extern tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)];
 extern struct skein sk;
 extern struct tfe_stream tfe;
@@ -148,7 +147,7 @@ extern tfc_yesno catch_all_errors, password, overwrite_source, do_fsync, do_pad,
 extern tfc_yesno do_preserve_time, do_stats_in_gibs, do_statline_dynamic, do_less_stats;
 extern tfc_yesno no_repeat, do_full_hexdump, verbose, statline_was_shown;
 extern char *srcfname, *dstfname, *do_mac_file, *counter_file, *sksum_hashlist_file;
-extern char *genkeyf, *mackeyf, *tweakf;
+extern char *saltf, *genkeyf, *mackeyf, *tweakf;
 extern char *pw_prompt, *mac_pw_prompt;
 extern tfc_useconds status_timer, bench_timer;
 extern tfc_useconds current_time, delta_time;
