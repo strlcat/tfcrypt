@@ -212,9 +212,13 @@ void usage(void)
 	tfc_say("    cont: print error if not quiet, then continue,");
 	tfc_say("      no action to pad missing data is attempted.");
 	tfc_say("      may be dangerous when working with block devices.");
-	tfc_say("    sync: print error if not quiet, then continue.");
+	tfc_say("    sync: print error if not quiet, then continue,");
 	tfc_say("      pad missing data block with zeroes.");
-	tfc_say("      note that sync works only with read errors!");
+	tfc_say("    lsync: same as sync, but does not use SEEK_SET logic,");
+	tfc_say("      lsync uses only relative seek operations, and does not prequery");
+	tfc_say("      the current file position for exact offsets, which maybe unsafe.");
+	tfc_say("      For this reason, it is HIGHLY recommended to use sync instead!");
+	tfc_say("      Note that both sync and lsync work only with read errors!");
 	tfc_say("  default error action is exit with printing status if not quiet.");
 	tfc_say("  -E xall: turn on error actions above for all errors, not just EIO errors.");
 	tfc_say("    This must be a separate option given before usual -E how option.");

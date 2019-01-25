@@ -177,6 +177,8 @@ int main(int argc, char **argv)
 					error_action = TFC_ERRACT_CONT;
 				else if (!strcmp(optarg, "sync"))
 					error_action = TFC_ERRACT_SYNC;
+				else if (!strcmp(optarg, "lsync"))
+					error_action = TFC_ERRACT_LSYNC;
 				else xerror(NO, YES, YES, "invalid error action %s specified", optarg);
 				break;
 			case 'O':
@@ -503,6 +505,7 @@ _nosalt:
 			pblk = tmpdata;
 			ldone = 0;
 			lrem = lblock = sizeof(tmpdata);
+			if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(mkfd);
 _mkragain:		lio = read(mkfd, pblk, lrem);
 			if (lio == 0) do_stop = YES;
 			if (lio != NOSIZE) ldone += lio;
@@ -512,10 +515,12 @@ _mkragain:		lio = read(mkfd, pblk, lrem);
 				switch (error_action) {
 					case TFC_ERRACT_CONT: xerror(YES, NO, NO, "%s", mackeyf); goto _mkragain; break;
 					case TFC_ERRACT_SYNC:
+					case TFC_ERRACT_LSYNC:
 						xerror(YES, NO, NO, "%s", mackeyf);
 						lio = ldone = lrem = lblock;
 						memset(tmpdata, 0, lio);
-						lseek(mkfd, lio, SEEK_CUR);
+						if (rdpos == NOFSIZE) lseek(mkfd, lio, SEEK_CUR);
+						else lseek(mkfd, rdpos + lio, SEEK_SET);
 						break;
 					default: xerror(NO, NO, NO, "%s", mackeyf); break;
 				}
@@ -646,6 +651,7 @@ _nokeyfd:
 		pblk = ctr;
 		ldone = 0;
 		lrem = lblock = ctrsz;
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _ctrragain:	lio = read(sfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else {
@@ -654,10 +660,12 @@ _ctrragain:	lio = read(sfd, pblk, lrem);
 			switch (error_action) {
 				case TFC_ERRACT_CONT: xerror(YES, NO, NO, "%s", srcfname); goto _ctrragain; break;
 				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
 					xerror(YES, NO, NO, "%s", srcfname);
 					lio = ldone = lrem = lblock;
 					memset(ctr, 0, lio);
-					lseek(sfd, lio, SEEK_CUR);
+					if (rdpos == NOFSIZE) lseek(sfd, lio, SEEK_CUR);
+					else lseek(sfd, rdpos + lio, SEEK_SET);
 					break;
 				default: xerror(NO, NO, NO, "%s", srcfname); break;
 			}
@@ -688,6 +696,7 @@ _ctrskip1:
 		pblk = key;
 _xts2key:	ldone = 0;
 		lrem = lblock = TF_FROM_BITS(TFC_KEY_BITS);
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(kfd);
 _keyragain:	lio = read(kfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else {
@@ -696,10 +705,12 @@ _keyragain:	lio = read(kfd, pblk, lrem);
 			switch (error_action) {
 				case TFC_ERRACT_CONT: xerror(YES, NO, NO, "reading key"); goto _keyragain; break;
 				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
 					xerror(YES, NO, NO, "reading key");
 					lio = ldone = lrem = lblock;
 					memset(key, 0, lio);
-					lseek(kfd, lio, SEEK_CUR);
+					if (rdpos == NOFSIZE) lseek(kfd, lio, SEEK_CUR);
+					else lseek(kfd, rdpos + lio, SEEK_SET);
 					break;
 				default: xerror(NO, NO, NO, "reading key"); break;
 			}
@@ -969,6 +980,7 @@ _ctrwagain:	lio = write(dfd, pblk, lrem);
 		pblk = srcblk;
 		ldone = 0;
 		lrem = lblock = blk_len_adj(maxlen, total_processed_src, blksize);
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _ragain:	lio = read(sfd, pblk, lrem);
 		if (lio == 0) do_stop = TFC_STOP_BEGAN;
 		if (lio != NOSIZE) ldone += lio;
@@ -978,10 +990,12 @@ _ragain:	lio = read(sfd, pblk, lrem);
 			switch (error_action) {
 				case TFC_ERRACT_CONT: xerror(YES, NO, NO, "%s", srcfname); goto _ragain; break;
 				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
 					xerror(YES, NO, NO, "%s", srcfname);
 					lio = ldone = lrem = lblock;
 					memset(srcblk, 0, lio);
-					lseek(sfd, lio, SEEK_CUR);
+					if (rdpos == NOFSIZE) lseek(sfd, lio, SEEK_CUR);
+					else lseek(sfd, rdpos + lio, SEEK_SET);
 					break;
 				default: xerror(NO, NO, NO, "%s", srcfname); break;
 			}
@@ -1056,6 +1070,7 @@ _nowrite:	total_processed_dst += ldone;
 			pblk = macvrfy;
 			ldone = 0;
 			lrem = lblock = TF_FROM_BITS(macbits);
+			if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _macragain:		lio = read(sfd, pblk, lrem);
 			if (lio != NOSIZE) ldone += lio;
 			else {
@@ -1064,10 +1079,12 @@ _macragain:		lio = read(sfd, pblk, lrem);
 				switch (error_action) {
 					case TFC_ERRACT_CONT: xerror(YES, NO, NO, "%s", srcfname); goto _macragain; break;
 					case TFC_ERRACT_SYNC:
+					case TFC_ERRACT_LSYNC:
 						xerror(YES, NO, NO, "%s", srcfname);
 						lio = ldone = lrem = lblock;
 						memset(macvrfy, 0, lio);
-						lseek(sfd, lio, SEEK_CUR);
+						if (rdpos == NOFSIZE) lseek(sfd, lio, SEEK_CUR);
+						else lseek(sfd, rdpos + lio, SEEK_SET);
 						break;
 					default: xerror(NO, NO, NO, "%s", srcfname); break;
 				}

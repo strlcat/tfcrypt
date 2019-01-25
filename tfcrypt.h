@@ -132,6 +132,7 @@ extern tfc_fsize iseek_blocks, iseek, oseek, maxlen;
 extern tfc_fsize total_processed_src, total_processed_dst;
 extern tfc_fsize delta_processed;
 extern tfc_fsize genrandom_nr_bytes, genzero_nr_bytes;
+extern tfc_fsize rdpos;
 extern int sfd, kfd, dfd;
 extern struct stat s_stat;
 extern size_t blksize, xtsblocks;
@@ -174,6 +175,7 @@ void xclose(int fd);
 const char *tfc_modename(int mode);
 void tfc_getcurtime(tfc_useconds *tx);
 tfc_fsize tfc_fdsize(int fd);
+tfc_fsize tfc_fdgetpos(int fd);
 tfc_fsize tfc_fnamesize(char *fname, tfc_yesno noexit);
 tfc_fsize tfc_modifysize(tfc_fsize szmodify, const char *szspec);
 void fcopy_matime(int fd, const struct stat *st);
@@ -198,7 +200,7 @@ void do_benchmark(tfc_useconds useconds, double dseconds);
 
 enum { NO, YES };
 
-enum { TFC_ERRACT_EXIT, TFC_ERRACT_CONT, TFC_ERRACT_SYNC };
+enum { TFC_ERRACT_EXIT, TFC_ERRACT_CONT, TFC_ERRACT_SYNC, TFC_ERRACT_LSYNC };
 enum { TFC_STOP_BEGAN = 1, TFC_STOP_FULL };
 enum { TFC_DO_PLAIN, TFC_DO_ENCRYPT, TFC_DO_DECRYPT };
 enum { TFC_MAC_DROP = -1, TFC_MAC_SIGN = 1, TFC_MAC_VRFY, TFC_MAC_JUST_VRFY };

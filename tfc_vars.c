@@ -45,6 +45,7 @@ tfc_fsize iseek_blocks, iseek, oseek, maxlen = NOFSIZE;
 tfc_fsize total_processed_src, total_processed_dst;
 tfc_fsize delta_processed;
 tfc_fsize genrandom_nr_bytes, genzero_nr_bytes;
+tfc_fsize rdpos = NOFSIZE;
 int sfd, kfd = -1, dfd = 1;
 struct stat s_stat;
 size_t blksize = TFC_BLKSIZE, xtsblocks = TFC_XTSBLOCKS;

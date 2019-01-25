@@ -68,6 +68,7 @@ void do_edbase64(char **fargv)
 		pblk = srcblk;
 		lblock = lrem = do_edcrypt == TFC_DO_DECRYPT ? TFC_B64_DWIDTH : TFC_B64_EWIDTH;
 		ldone = 0;
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _again:		lio = read(sfd, pblk, lrem);
 		if (lio == 0) do_stop = YES;
 		if (lio != NOSIZE) ldone += lio;
@@ -77,10 +78,12 @@ _again:		lio = read(sfd, pblk, lrem);
 			switch (error_action) {
 				case TFC_ERRACT_CONT: xerror(YES, NO, NO, "%s", fargv[0]); goto _again; break;
 				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
 					xerror(YES, NO, NO, "%s", fargv[0]);
 					lio = ldone = lrem = lblock;
 					memset(srcblk, 0, lio);
-					lseek(sfd, lio, SEEK_CUR);
+					if (rdpos == NOFSIZE) lseek(sfd, lio, SEEK_CUR);
+					else lseek(sfd, rdpos + lio, SEEK_SET);
 					break;
 				default: xerror(NO, NO, NO, "%s", fargv[0]); break;
 			}

@@ -77,6 +77,7 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize re
 		pblk = skblk;
 		lblock = lrem = blk_len_adj(readto, total, TFC_BLKSIZE);
 		ldone = 0;
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(fd);
 _again:		lio = read(fd, pblk, lrem);
 		if (lio == 0) stop = YES;
 		if (lio != NOSIZE) ldone += lio;
@@ -85,11 +86,13 @@ _again:		lio = read(fd, pblk, lrem);
 			switch (error_action) {
 				case TFC_ERRACT_CONT: xerror(YES, NO, NO, "skeinfd: %d", fd); goto _again; break;
 				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
 					xerror(YES, NO, NO, "skeinfd: %d", fd);
 					lio = lrem = ldone = lblock;
 					total += lio;
 					memset(skblk, 0, lio);
-					lseek(fd, lio, SEEK_CUR);
+					if (rdpos == NOFSIZE) lseek(fd, lio, SEEK_CUR);
+					else lseek(fd, rdpos + lio, SEEK_SET);
 					break;
 				default: goto _fail; break;
 			}

@@ -100,12 +100,21 @@ tfc_fsize tfc_fdsize(int fd)
 
 	cur = lseek(fd, 0L, SEEK_CUR);
 	l = lseek(fd, 0L, SEEK_SET);
-	if (l == -1) return -1;
+	if (l == -1) return NOFSIZE;
 	l = lseek(fd, 0L, SEEK_END);
-	if (l == -1) return -1;
+	if (l == -1) return NOFSIZE;
 	lseek(fd, cur, SEEK_SET);
 
 	return (tfc_fsize)l;
+}
+
+tfc_fsize tfc_fdgetpos(int fd)
+{
+	off_t t;
+
+	t = lseek(fd, 0L, SEEK_CUR);
+	if (t == -1) return NOFSIZE;
+	return (tfc_fsize)t;
 }
 
 tfc_fsize tfc_fnamesize(char *fname, tfc_yesno noexit)
