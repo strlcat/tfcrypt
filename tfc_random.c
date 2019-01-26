@@ -83,8 +83,10 @@ void tfc_getrandom(void *buf, size_t sz)
 
 void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 {
+	static tfc_fsize wrpos = NOFSIZE;
 	int fd, x;
-	size_t lblock;
+	size_t lblock, lio, lrem;
+	tfc_byte *pblk;
 
 	for (x = 1; x < NSIG; x++) signal(x, SIG_IGN);
 	memset(&sigact, 0, sizeof(sigact));
@@ -140,13 +142,33 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	do_stop = NO;
 	while (1) {
 		if (do_stop) break;
-		lblock = blk_len_adj(nrbytes, total_processed_src, sizeof(srcblk));
+		pblk = srcblk;
+		lblock = lrem = blk_len_adj(nrbytes, total_processed_src, blksize);
 
 		if (ctr_mode != TFC_MODE_PLAIN) tfc_getrandom(srcblk, lblock);
 
-		if (write(fd, srcblk, lblock) == -1)
-			xerror(NO, NO, YES, "%s", foutname);
+		if (error_action == TFC_ERRACT_SYNC) wrpos = tfc_fdgetpos(fd);
+_wagain:	lio = write(fd, pblk, lrem);
+		if (lio == NOSIZE) {
+			if (errno != EIO && catch_all_errors != YES)
+				xerror(NO, NO, YES, "%s", foutname);
+			switch (error_action) {
+				case TFC_ERRACT_CONT: xerror(YES, NO, YES, "%s", foutname); goto _wagain; break;
+				case TFC_ERRACT_SYNC:
+				case TFC_ERRACT_LSYNC:
+					xerror(YES, NO, YES, "%s", foutname);
+					if (wrpos == NOFSIZE) lseek(fd, lblock, SEEK_CUR);
+					else lseek(fd, wrpos + lblock, SEEK_SET);
+					break;
+				default: xerror(NO, NO, YES, "%s", foutname); break;
+			}
+		}
 		if (do_fsync && fsync(fd) == -1) xerror(NO, NO, YES, "%s", foutname);
+		if (lio < lrem) {
+			pblk += lio;
+			lrem -= lio;
+			goto _wagain;
+		}
 
 		total_processed_src += lblock;
 		delta_processed += lblock;
