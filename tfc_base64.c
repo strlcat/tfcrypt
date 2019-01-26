@@ -69,7 +69,7 @@ void do_edbase64(char **fargv)
 		lblock = lrem = do_edcrypt == TFC_DO_DECRYPT ? TFC_B64_DWIDTH : TFC_B64_EWIDTH;
 		ldone = 0;
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
-_again:		lio = read(sfd, pblk, lrem);
+_again:		lio = xread(sfd, pblk, lrem);
 		if (lio == 0) do_stop = YES;
 		if (lio != NOSIZE) ldone += lio;
 		else {
@@ -113,13 +113,13 @@ _again:		lio = read(sfd, pblk, lrem);
 		}
 		lrem = ldone;
 		ldone = 0;
-_wagain:	lio = write(dfd, pblk, lrem);
+_wagain:	lio = xwrite(dfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else xerror(NO, NO, NO, "%s", fargv[1]);
 		if (do_edcrypt == TFC_DO_ENCRYPT) {
 			size_t t;
 			if (lread >= lblock || do_stop == TFC_STOP_FULL) {
-				t = write(dfd, "\n", 1);
+				t = xwrite(dfd, "\n", 1);
 				if (t != NOSIZE) lio += t;
 				else lio = NOSIZE;
 			}

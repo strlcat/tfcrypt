@@ -482,7 +482,7 @@ int main(int argc, char **argv)
 		if (!strcmp(saltf, "-")) saltfd = 0;
 		else saltfd = open(saltf, O_RDONLY | O_LARGEFILE);
 		if (saltfd == -1) xerror(NO, NO, YES, "%s", saltf);
-		lio = read(saltfd, tfc_salt, TFC_MAX_SALT - TF_FROM_BITS(TFC_KEY_BITS));
+		lio = xread(saltfd, tfc_salt, TFC_MAX_SALT - TF_FROM_BITS(TFC_KEY_BITS));
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", saltf);
 		tfc_saltsz = lio;
 		xclose(saltfd);
@@ -506,7 +506,7 @@ _nosalt:
 			ldone = 0;
 			lrem = lblock = sizeof(tmpdata);
 			if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(mkfd);
-_mkragain:		lio = read(mkfd, pblk, lrem);
+_mkragain:		lio = xread(mkfd, pblk, lrem);
 			if (lio == 0) do_stop = YES;
 			if (lio != NOSIZE) ldone += lio;
 			else {
@@ -593,7 +593,7 @@ _mkragain:		lio = read(mkfd, pblk, lrem);
 		if (!strcmp(tweakf, "-")) twfd = 0;
 		else twfd = open(tweakf, O_RDONLY | O_LARGEFILE);
 		if (twfd == -1) xerror(NO, NO, YES, "%s", tweakf);
-		lio = ldone = read(twfd, key+TF_FROM_BITS(TF_MAX_BITS)+TF_SIZE_UNIT, 2*TF_SIZE_UNIT);
+		lio = ldone = xread(twfd, key+TF_FROM_BITS(TF_MAX_BITS)+TF_SIZE_UNIT, 2*TF_SIZE_UNIT);
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", tweakf);
 		if (ldone < 2*TF_SIZE_UNIT)
 			xerror(NO, NO, YES, "%s: %zu bytes tweak required", tweakf, 2*TF_SIZE_UNIT);
@@ -642,7 +642,7 @@ _nokeyfd:
 		if (!strcmp(counter_file, "-")) ctrfd = 0;
 		else ctrfd = open(counter_file, O_RDONLY | O_LARGEFILE);
 		if (ctrfd == -1) xerror(NO, NO, YES, "%s", counter_file);
-		lio = read(ctrfd, ctr, ctrsz);
+		lio = xread(ctrfd, ctr, ctrsz);
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", counter_file);
 		if (lio < ctrsz) xerror(NO, YES, YES, "counter file is too small (%zu)!", lio);
 		xclose(ctrfd);
@@ -652,7 +652,7 @@ _nokeyfd:
 		ldone = 0;
 		lrem = lblock = ctrsz;
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
-_ctrragain:	lio = read(sfd, pblk, lrem);
+_ctrragain:	lio = xread(sfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES)
@@ -697,7 +697,7 @@ _ctrskip1:
 _xts2key:	ldone = 0;
 		lrem = lblock = TF_FROM_BITS(TFC_KEY_BITS);
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(kfd);
-_keyragain:	lio = read(kfd, pblk, lrem);
+_keyragain:	lio = xread(kfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES)
@@ -840,7 +840,7 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 		if (!strcmp(genkeyf, "-")) krfd = 1;
 		else krfd = open(genkeyf, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
 		if (krfd == -1) xerror(NO, NO, YES, "%s", genkeyf);
-_xts2genkey:	if (write(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == -1) xerror(NO, NO, YES, "%s", genkeyf);
+_xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerror(NO, NO, YES, "%s", genkeyf);
 		if (do_fsync && fsync(krfd) == -1) xerror(NO, NO, YES, "%s", genkeyf);
 		if (verbose && xtskeyset == NO) {
 			tfc_esay("%s: password hashing done", progname);
@@ -896,7 +896,7 @@ _xts2genkey:	if (write(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == -1) xerror(NO,
 		case TFC_CTR_SHOW:
 			switch (do_outfmt) {
 				case TFC_OUTFMT_B64: tfc_printbase64(stderr, ctr, ctrsz, YES); break;
-				case TFC_OUTFMT_RAW: write(2, ctr, ctrsz); break;
+				case TFC_OUTFMT_RAW: xwrite(2, ctr, ctrsz); break;
 				case TFC_OUTFMT_HEX: mehexdump(ctr, ctrsz, ctrsz, YES); break;
 			}
 			break;
@@ -960,7 +960,7 @@ _plain:
 		pblk = ctr;
 		lio = lrem = ctrsz;
 		ldone = 0;
-_ctrwagain:	lio = write(dfd, pblk, lrem);
+_ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else xerror(NO, NO, NO, "%s", dstfname);
 		if (do_fsync && fsync(dfd) == -1) xerror(NO, NO, NO, "%s", dstfname);
@@ -981,7 +981,7 @@ _ctrwagain:	lio = write(dfd, pblk, lrem);
 		ldone = 0;
 		lrem = lblock = blk_len_adj(maxlen, total_processed_src, blksize);
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
-_ragain:	lio = read(sfd, pblk, lrem);
+_ragain:	lio = xread(sfd, pblk, lrem);
 		if (lio == 0) do_stop = TFC_STOP_BEGAN;
 		if (lio != NOSIZE) ldone += lio;
 		else {
@@ -1047,7 +1047,7 @@ _ragain:	lio = read(sfd, pblk, lrem);
 		pblk = dstblk;
 		lrem = ldone;
 		ldone = 0;
-_wagain:	lio = write(dfd, pblk, lrem);
+_wagain:	lio = xwrite(dfd, pblk, lrem);
 		if (lio != NOSIZE) ldone += lio;
 		else xerror(NO, NO, NO, "%s", dstfname);
 		if (do_fsync && fsync(dfd) == -1) xerror(NO, NO, NO, "%s", dstfname);
@@ -1071,7 +1071,7 @@ _nowrite:	total_processed_dst += ldone;
 			ldone = 0;
 			lrem = lblock = TF_FROM_BITS(macbits);
 			if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
-_macragain:		lio = read(sfd, pblk, lrem);
+_macragain:		lio = xread(sfd, pblk, lrem);
 			if (lio != NOSIZE) ldone += lio;
 			else {
 				if (errno != EIO && catch_all_errors != YES)
@@ -1102,7 +1102,7 @@ _macragain:		lio = read(sfd, pblk, lrem);
 			if (!strcmp(do_mac_file, "-")) mfd = 0;
 			else mfd = open(do_mac_file, O_RDONLY | O_LARGEFILE);
 			if (mfd == -1) xerror(YES, NO, NO, "%s", do_mac_file);
-			lio = ldone = read(mfd, tmpdata, sizeof(tmpdata));
+			lio = ldone = xread(mfd, tmpdata, sizeof(tmpdata));
 			if (lio == NOSIZE) xerror(NO, NO, YES, "%s", do_mac_file);
 			if (!memcmp(tmpdata, TFC_ASCII_TFC_MAC_FOURCC, TFC_ASCII_TFC_MAC_FOURCC_LEN)) {
 				memmove(tmpdata, tmpdata+TFC_ASCII_TFC_MAC_FOURCC_LEN,
@@ -1167,7 +1167,7 @@ _shortmac:	memset(macvrfy, 0, sizeof(macvrfy));
 			pblk = tmpdata;
 			lio = lrem = TF_FROM_BITS(macbits);
 			ldone = 0;
-_macwagain:		lio = write(dfd, pblk, lrem);
+_macwagain:		lio = xwrite(dfd, pblk, lrem);
 			if (lio != NOSIZE) ldone += lio;
 			else xerror(NO, NO, NO, "%s", dstfname);
 			if (do_fsync && fsync(dfd) == -1) xerror(NO, NO, NO, "%s", dstfname);
@@ -1195,9 +1195,9 @@ _macwagain:		lio = write(dfd, pblk, lrem);
 					tmpdata[lrem] = '\n';
 					lrem++;
 				}
-				lio = write(mfd, tmpdata, lrem);
+				lio = xwrite(mfd, tmpdata, lrem);
 			}
-			else lio = write(mfd, tmpdata, TF_FROM_BITS(macbits));
+			else lio = xwrite(mfd, tmpdata, TF_FROM_BITS(macbits));
 			if (lio == NOSIZE) xerror(NO, NO, YES, "%s", do_mac_file);
 			if (do_fsync && fsync(mfd) == -1) xerror(NO, NO, YES, "%s", do_mac_file);
 			xclose(mfd);

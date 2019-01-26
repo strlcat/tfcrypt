@@ -78,7 +78,7 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize re
 		lblock = lrem = blk_len_adj(readto, total, TFC_BLKSIZE);
 		ldone = 0;
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(fd);
-_again:		lio = read(fd, pblk, lrem);
+_again:		lio = xread(fd, pblk, lrem);
 		if (lio == 0) stop = YES;
 		if (lio != NOSIZE) ldone += lio;
 		else {
@@ -289,7 +289,7 @@ _dohash:	if (status_timer) setup_next_alarm(status_timer);
 			for (y = 0; y < sksum_turns; y++) skein(hash, bits, mackey_opt ? mackey : NULL, hash, TF_FROM_BITS(bits));
 		}
 		if (do_outfmt == TFC_OUTFMT_B64) tfc_printbase64(stdout, hash, TF_FROM_BITS(bits), 0);
-		else if (do_outfmt == TFC_OUTFMT_RAW) write(1, hash, TF_FROM_BITS(bits));
+		else if (do_outfmt == TFC_OUTFMT_RAW) xwrite(1, hash, TF_FROM_BITS(bits));
 		else mhexdump(hash, TF_FROM_BITS(bits), TF_FROM_BITS(bits), 0);
 		if (do_outfmt != TFC_OUTFMT_RAW) {
 			if (quiet == NO || xx > 1) tfc_say("\t%s", fargv[x] ? fargv[x] : "-");

@@ -44,7 +44,7 @@ static void get_urandom(const char *src, void *buf, size_t size)
 	if (fd == -1) fd = open("/dev/random", O_RDONLY);
 	if (fd == -1) xerror(NO, YES, YES, "random source is required (tried %s)", src);
 
-_again:	rd = read(fd, ubuf, sz);
+_again:	rd = xread(fd, ubuf, sz);
 	if (rd < sz && rd != NOSIZE) {
 		ubuf += rd;
 		sz -= rd;
@@ -148,7 +148,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 		if (ctr_mode != TFC_MODE_PLAIN) tfc_getrandom(srcblk, lblock);
 
 		if (error_action == TFC_ERRACT_SYNC) wrpos = tfc_fdgetpos(fd);
-_wagain:	lio = write(fd, pblk, lrem);
+_wagain:	lio = xwrite(fd, pblk, lrem);
 		if (lio == NOSIZE) {
 			if (errno != EIO && catch_all_errors != YES)
 				xerror(NO, NO, YES, "%s", foutname);

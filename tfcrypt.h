@@ -157,6 +157,9 @@ extern tfc_useconds status_timer, bench_timer;
 extern tfc_useconds current_time, delta_time;
 extern struct getpasswd_state getps;
 
+size_t xread(int fd, void *data, size_t szdata);
+size_t xwrite(int fd, const void *data, size_t szdata);
+
 void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *fmt, ...);
 void xexit(int status);
 void usage(void);
