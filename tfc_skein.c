@@ -49,7 +49,7 @@ void tf_key_tweak_compat(void *key)
 	ukey[TF_TWEAK_WORD3] = ukey[TF_TWEAK_WORD1] ^ ukey[TF_TWEAK_WORD2];
 }
 
-tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize readto)
+tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize offset, tfc_fsize readto)
 {
 	static tfc_byte skblk[TFC_BLKSIZE];
 
@@ -62,9 +62,14 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize re
 	if (ctr_mode == TFC_MODE_SKSUM) total_processed_src = total_processed_dst = delta_processed = 0;
 
 	if (fd == -1) goto _fail;
-	if (fd > 2 && readto == NOFSIZE) {
-		readto = tfc_fdsize(fd);
-		if (readto == NOFSIZE) goto _fail;
+	if (fd > 2) {
+		if (readto == NOFSIZE) {
+			readto = tfc_fdsize(fd);
+			if (readto == NOFSIZE) goto _fail;
+		}
+		if (offset != 0 && offset != NOFSIZE) {
+			if (lseek(fd, (off_t)offset, SEEK_SET) == -1) goto _fail;
+		}
 	}
 
 	if (key) skein_init_key(&sk, key, bits);
@@ -226,7 +231,7 @@ _dothat:
 			}
 
 			if (status_timer) setup_next_alarm(status_timer);
-			if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, maxlen) != YES) {
+			if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, iseek, maxlen) != YES) {
 				xerror(YES, NO, YES, "%s", fname);
 				exitcode = 1;
 				continue;
@@ -278,7 +283,7 @@ _dothat:
 		}
 
 _dohash:	if (status_timer) setup_next_alarm(status_timer);
-		if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, maxlen) != YES) {
+		if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, iseek, maxlen) != YES) {
 			xerror(YES, NO, YES, "%s", fargv[x]);
 			exitcode = 1;
 			continue;

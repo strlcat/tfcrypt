@@ -252,6 +252,7 @@ void usage(void)
 	tfc_say("    oseek=val: seek destination file/device by these val bytes.");
 	tfc_say("    count=val: process only these val bytes, both input and output.");
 	tfc_say("    xkey=val: take only val bytes from user keyfile.");
+	tfc_say("    okey=val: seek the key before reading it (usually a device).");
 	tfc_say("    xctr=val: specify size in bytes of initial counter prepended or read.");
 	tfc_say("  -P: plain IO mode: disable encryption/decryption code at all.");
 	tfc_say("\n");

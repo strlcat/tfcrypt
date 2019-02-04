@@ -328,13 +328,25 @@ int main(int argc, char **argv)
 						s += 5;
 						maxkeylen = tfc_humanfsize(s, &stoi);
 						if (!str_empty(stoi)) {
-							maxkeylen = (size_t)tfc_fnamesize(s, YES);
-							maxkeylen = (size_t)tfc_modifysize((tfc_fsize)maxkeylen, strchr(s, ':'));
+							maxkeylen = tfc_fnamesize(s, YES);
+							maxkeylen = tfc_modifysize(maxkeylen, strchr(s, ':'));
 							if (maxkeylen == NOSIZE)
 								xerror(NO, YES, YES,
 								"%s: invalid key length value", s);
 						}
-						else maxkeylen = (size_t)tfc_modifysize((tfc_fsize)maxkeylen, strchr(s, ':'));
+						else maxkeylen = tfc_modifysize(maxkeylen, strchr(s, ':'));
+					}
+					else if (!strncmp(s, "okey", 4) && *(s+4) == '=') {
+						s += 5;
+						keyoffset = tfc_humanfsize(s, &stoi);
+						if (!str_empty(stoi)) {
+							keyoffset = tfc_fnamesize(s, YES);
+							keyoffset = tfc_modifysize(keyoffset, strchr(s, ':'));
+							if (keyoffset == NOFSIZE)
+								xerror(NO, YES, YES,
+								"%s: invalid key offset value", s);
+						}
+						else keyoffset = tfc_modifysize(keyoffset, strchr(s, ':'));
 					}
 					else if (!strncmp(s, "xctr", 4) && *(s+4) == '=') {
 						s += 5;
@@ -814,7 +826,7 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 		memset(pwdagain, 0, sizeof(pwdagain));
 	}
 	else {
-		if (skeinfd(key, TFC_KEY_BITS, mackey_opt ? mackey : NULL, kfd, maxkeylen) != YES)
+		if (skeinfd(key, TFC_KEY_BITS, mackey_opt ? mackey : NULL, kfd, keyoffset, maxkeylen) != YES)
 			xerror(NO, NO, YES, "hashing key");
 	}
 
