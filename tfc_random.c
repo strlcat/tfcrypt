@@ -130,7 +130,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 
 	if (offset) {
 		if (lseek(fd, offset, SEEK_SET) == -1)
-			xerror(YES, NO, NO, "%s: seek failed", foutname);
+			xerror(ignore_seek_errors, NO, NO, "%s: seek failed", foutname);
 	}
 
 	if (ctr_mode == TFC_MODE_PLAIN) memset(srcblk, 0, sizeof(srcblk));

@@ -68,7 +68,9 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize of
 			if (readto == NOFSIZE) goto _fail;
 		}
 		if (offset != 0 && offset != NOFSIZE) {
-			if (lseek(fd, (off_t)offset, SEEK_SET) == -1) goto _fail;
+			if (lseek(fd, (off_t)offset, SEEK_SET) == -1) {
+				if (ignore_seek_errors == NO) goto _fail;
+			}
 		}
 	}
 

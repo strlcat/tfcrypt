@@ -171,6 +171,10 @@ int main(int argc, char **argv)
 					catch_all_errors = YES;
 					break;
 				}
+				if (!strcmp(optarg, "xseek")) {
+					ignore_seek_errors = YES;
+					break;
+				}
 				if (!strcmp(optarg, "exit"))
 					error_action = TFC_ERRACT_EXIT;
 				else if (!strncmp(optarg, "cont", 4))
@@ -695,7 +699,7 @@ _ctrskip1:
 		if (counter_opt == TFC_CTR_HEAD && ctr_mode != TFC_MODE_ECB)
 			iseek += ctrsz;
 		if (lseek(sfd, iseek, SEEK_SET) == -1)
-			xerror(YES, NO, NO, "%s: seek failed", srcfname);
+			xerror(ignore_seek_errors, NO, NO, "%s: seek failed", srcfname);
 	}
 
 	if (ctr_mode == TFC_MODE_PLAIN) goto _plain;
@@ -938,7 +942,7 @@ _plain:
 
 	if (oseek) {
 		if (lseek(dfd, oseek, SEEK_SET) == -1)
-			xerror(YES, NO, NO, "%s: seek failed", dstfname);
+			xerror(ignore_seek_errors, NO, NO, "%s: seek failed", dstfname);
 	}
 
 	for (x = 1; x < NSIG; x++) signal(x, SIG_IGN);

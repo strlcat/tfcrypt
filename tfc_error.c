@@ -221,7 +221,8 @@ void usage(void)
 	tfc_say("      Note that both sync and lsync work only with read errors!");
 	tfc_say("  default error action is exit with printing status if not quiet.");
 	tfc_say("  -E xall: turn on error actions above for all errors, not just EIO errors.");
-	tfc_say("    This must be a separate option given before usual -E how option.");
+	tfc_say("  -E xseek: ignore positioning and other seek related errors.");
+	tfc_say("    Multiple -E specifiers may be given in separate options.");
 	tfc_say("  -O opts: set options (comma separated list):");
 	tfc_say("    sync: request a synchronous I/O for a output,");
 	tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
