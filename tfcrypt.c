@@ -903,10 +903,11 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 		if (!tweakf) skein(key+TF_FROM_BITS(TF_MAX_BITS)+TF_SIZE_UNIT, 2*TF_UNIT_BITS, NULL, key, TF_FROM_BITS(TFC_KEY_BITS));
 		tf_key_tweak_compat(key);
 	}
-	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 	if (ctr_mode == TFC_MODE_ECB) goto _ctrskip2;
 	tfc_data_to_words64(&iseek_blocks, sizeof(iseek_blocks));
 	tf_ctr_set(ctr, &iseek_blocks, sizeof(iseek_blocks));
+
+	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 
 	switch (counter_opt) {
 		case TFC_CTR_SHOW:
