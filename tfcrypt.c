@@ -62,9 +62,20 @@ int main(int argc, char **argv)
 
 	if (!isatty(2)) do_statline_dynamic = NO;
 
+	s = (char *)srcblk;
+	d = getenv("HOME");
+	if (!d) d = "";
+	xstrlcat(s, d, PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
+	xstrlcat(s, "/.tfcrypt.defs", PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
+	read_defaults(s, YES);
+	memset(s, 0, PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
+
 	opterr = 0;
-	while ((c = getopt(argc, argv, "s:aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
 		switch (c) {
+			case 'L':
+				read_defaults(optarg, NO);
+				break;
 			case 's':
 				saltf = optarg;
 				break;

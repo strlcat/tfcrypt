@@ -119,6 +119,9 @@ int xmhexdump(int to, const void *data, size_t szdata, int hgroup, int hexstr, i
 #define mhexdump(data, szdata, group, newline) xmhexdump(1, data, szdata, group, do_full_hexdump, newline)
 #define mehexdump(data, szdata, group, newline) xmhexdump(2, data, szdata, group, do_full_hexdump, newline)
 
+size_t xstrlcpy(char *dst, const char *src, size_t size);
+size_t xstrlcat(char *dst, const char *src, size_t size);
+
 extern size_t nr_turns;
 extern int ctr_mode;
 extern size_t macbits;
@@ -202,6 +205,8 @@ void setup_next_alarm(tfc_useconds useconds);
 void skein(void *hash, size_t bits, const void *key, const void *data, size_t szdata);
 void tf_key_tweak_compat(void *key);
 tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize offset, tfc_fsize readto);
+
+void read_defaults(const char *path, tfc_yesno noerr);
 
 void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes);
 void do_edbase64(char **fargv);

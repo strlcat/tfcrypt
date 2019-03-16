@@ -204,8 +204,7 @@ _dothat:
 
 		while (1) {
 			memset(sksblk, 0, sizeof(sksblk));
-			x = xfgets(sksblk, sizeof(sksblk), f);
-			if (x == 0) break;
+			if (xfgets(sksblk, sizeof(sksblk), f) != YES) break;
 
 			s = d = sksblk; t = NULL;
 			shash = fname = NULL;
