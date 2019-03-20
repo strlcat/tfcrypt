@@ -65,10 +65,12 @@ int main(int argc, char **argv)
 	s = (char *)srcblk;
 	d = getenv("HOME");
 	if (!d) d = "";
-	xstrlcat(s, d, PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
-	xstrlcat(s, "/.tfcrypt.defs", PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
+	n = PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX;
+	if (xstrlcpy(s, d, n) >= n) goto _baddfname;
+	if (xstrlcat(s, "/.tfcrypt.defs", n) >= n) goto _baddfname;
 	read_defaults(s, YES);
-	memset(s, 0, PATH_MAX > sizeof(srcblk) ? sizeof(srcblk) : PATH_MAX);
+_baddfname:
+	memset(s, 0, n);
 
 	opterr = 0;
 	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {

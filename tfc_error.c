@@ -151,7 +151,7 @@ void usage(void)
 	tfc_say("convert encrypted data into ASCII format to ease transmission.");
 	tfc_say("\n");
 	tfc_say("  -e, -d: encrypt, decrypt (it maybe required).");
-	tfc_say("  -L <file>: load tfcrypt defsults from file.");
+	tfc_say("  -L <file>: load tfcrypt defaults from file.");
 	tfc_say("    defaults is text file which defines salt, nr_turns and default mode.");
 	tfc_say("  -s <file>: load tfcrypt salt from file.");
 	tfc_say("  -s disable: disable key salting at all.");
