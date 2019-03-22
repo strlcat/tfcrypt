@@ -91,6 +91,8 @@ _baddfname:
 					counter_opt = TFC_CTR_HEAD;
 				else if (!strcasecmp(optarg, "rand"))
 					counter_opt = TFC_CTR_RAND;
+				else if (!strcasecmp(optarg, "zero"))
+					counter_opt = TFC_CTR_ZERO;
 				else counter_file = sksum_hashlist_file = optarg;
 				break;
 			case 'C':
@@ -929,6 +931,7 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 			}
 			break;
 		case TFC_CTR_RAND: tfc_getrandom(ctr, ctrsz); break;
+		case TFC_CTR_ZERO: memset(ctr, 0, ctrsz); break;
 	}
 
 _ctrskip2:
