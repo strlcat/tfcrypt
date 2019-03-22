@@ -920,8 +920,6 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 	tfc_data_to_words64(&iseek_blocks, sizeof(iseek_blocks));
 	tf_ctr_set(ctr, &iseek_blocks, sizeof(iseek_blocks));
 
-	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
-
 	switch (counter_opt) {
 		case TFC_CTR_SHOW:
 			switch (do_outfmt) {
@@ -1002,6 +1000,8 @@ _ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 		total_processed_dst += ldone;
 		delta_processed += ldone;
 	}
+
+	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 
 	errno = 0;
 	do_stop = NO;
