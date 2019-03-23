@@ -161,8 +161,7 @@ void usage(void)
 	tfc_say("  -z: ask for key in plain C string form through password asker.");
 	tfc_say("  -x: ask for key in hex string form through password asker.");
 	tfc_say("  -K <file>: generate key from keyfile or password and write it to file.");
-	tfc_say("  -T: enable tfcrypt1 old mode (useful only for old encryptions).");
-	tfc_say("  -t <file>: use tweak from file (useful only for old encryptions).");
+	tfc_say("  -t <file>: use (raw) tweak from file.");
 	tfc_say("  -w: overwrite source file. If not file, ignored.");
 	tfc_say("  -n TURNS: number of turns to perform in Skein function.");
 	tfc_say("    Default is always defined when building tfcrypt.");
@@ -259,6 +258,7 @@ void usage(void)
 	tfc_say("    xkey=val: take only val bytes from user keyfile.");
 	tfc_say("    okey=val: seek the key before reading it (usually a device).");
 	tfc_say("    xctr=val: specify size in bytes of initial counter prepended or read.");
+	tfc_say("    fullkey: occupy tweak space by key space, extending key size by 256 bits.");
 	tfc_say("  -P: plain IO mode: disable encryption/decryption code at all.");
 	tfc_say("\n");
 	tfc_say("Default is to ask for password, then encrypt stdin into stdout.");

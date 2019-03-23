@@ -20,7 +20,7 @@ OCB mode does not use Skein hash function to hash and verify message, instead, i
 a single pass crypt and verify, thus, it is faster than other modes when both crypt and verify.
 
 Additionally, this version provides a way to virtually "extend" key size to 1280 bits,
-by enabling "full_key" option or changing "do_full_key" default setting in tfcrypt_defs.h.
+by enabling "fullkey" option or changing "do_full_key" default setting in tfcrypt_defs.h.
 In this mode, tweak is ignored, and filled with extended key material.
 
 THREEFISH NOTES

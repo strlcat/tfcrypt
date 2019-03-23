@@ -73,7 +73,7 @@ _baddfname:
 	memset(s, 0, n);
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:TPkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
 		switch (c) {
 			case 'L':
 				read_defaults(optarg, NO);
@@ -161,10 +161,6 @@ _baddfname:
 				tweakf = optarg;
 				do_full_key = NO;
 				break;
-			case 'T':
-				tfc_saltsz = 0;
-				do_full_key = NO;
-				break;
 			case 'l':
 				if (maxlen != NOFSIZE) break;
 
@@ -229,6 +225,8 @@ _baddfname:
 						mac_pw_prompt = s+10;
 					else if (!strcmp(s, "shorthex"))
 						do_full_hexdump = NO;
+					else if (!strcmp(s, "fullkey"))
+						do_full_key = YES;
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {
 						s += 5;
 						blksize = (size_t)tfc_humanfsize(s, &stoi);
