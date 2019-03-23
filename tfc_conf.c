@@ -66,7 +66,7 @@ _spc2:		t = strchr(d, ' ');
 		*t = 0; d = t+1; goto _spc2;
 _nspc:
 		if (!strcmp(s, "nr_turns")) {
-			nr_turns = sksum_turns = strtoul(d, &stoi, 10);
+			nr_turns = strtoul(d, &stoi, 10);
 			if (!str_empty(stoi)) xerror(NO, YES, YES, "[%s] nr_turns=%s: invalid number of turns", path, d);
 		}
 		else if (!strcmp(s, "ctr_mode")) {
