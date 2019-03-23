@@ -15,9 +15,9 @@ with Skein hash function. Default key length is 1280 bits (160 bytes).
 This program is incompatible with older, "tf1024" tfcrypt version. This version aims to
 provide a portable encryption tool to encrypt fixed media such as disks and archive files,
 as well as to provide decades long privacy for encrypted data. That's why it uses 1024 bit
-encryption and, unlike older version, extends key size to 1280 bits, eliminates tweak feature
-from Threefish and uses either XTS (by default) or OCB modes of operation instead,
-to encrypt fixed media in a secure undetectable way.
+encryption and, unlike older version, virtually extends key size to 1280 bits by
+removing tweak feature from Threefish and uses either XTS (by default) or OCB modes of
+operation instead, to encrypt fixed media in a secure undetectable way.
 
 Supported modes of operation: CTR, ECB, CBC, XTS, OCB and arbitrary long keystream.
 OCB mode does not use Skein hash function to hash and verify message, instead, it does
@@ -30,11 +30,7 @@ slow on 32 bit systems. This way, it cannot be efficiently used on pure 32 bit m
 
 Threefish contained here is stripped off of it's tweak property, thus, it is turned into a
 regular block cipher. To add tweakability, either XTS or OCB modes of operation are used.
-Default wide block size is 4096 bytes. Author strongly believes that Threefish _may_ be subject
-to related key attacks when used in a tweaked mode, so this property is easy to remove.
-Because tweak occupied another 192 bits of key material, these 192 bits are added to effective
-key length. Another key word is extracted from the sum of all the user key words, thus,
-another 64 bits. Total +256 additional bits of key = 1280 key bits.
+Default wide block size is 4096 bytes.
 
 SKEIN NOTES
 

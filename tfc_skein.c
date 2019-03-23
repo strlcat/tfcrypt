@@ -39,16 +39,6 @@ void skein(void *hash, size_t bits, const void *key, const void *data, size_t sz
 	skein_final(hash, &sk);
 }
 
-void tf_key_tweak_compat(void *key)
-{
-	TF_UNIT_TYPE *ukey = key, c = THREEFISH_CONST;
-	size_t x;
-
-	for (x = 0; x < TF_NR_BLOCK_UNITS; x++) c ^= ukey[x];
-	ukey[x] = c;
-	ukey[TF_TWEAK_WORD3] = ukey[TF_TWEAK_WORD1] ^ ukey[TF_TWEAK_WORD2];
-}
-
 tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize offset, tfc_fsize readto)
 {
 	static tfc_byte skblk[TFC_BLKSIZE];

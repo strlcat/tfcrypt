@@ -624,10 +624,10 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 		if (!strcmp(tweakf, "-")) twfd = 0;
 		else twfd = open(tweakf, O_RDONLY | O_LARGEFILE);
 		if (twfd == -1) xerror(NO, NO, YES, "%s", tweakf);
-		lio = ldone = xread(twfd, key+TF_FROM_BITS(TF_MAX_BITS)+TF_SIZE_UNIT, 2*TF_SIZE_UNIT);
+		lio = ldone = xread(twfd, tweak, TF_TWEAK_SIZE);
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", tweakf);
-		if (ldone < 2*TF_SIZE_UNIT)
-			xerror(NO, NO, YES, "%s: %zu bytes tweak required", tweakf, 2*TF_SIZE_UNIT);
+		if (ldone < TF_TWEAK_SIZE)
+			xerror(NO, NO, YES, "%s: %zu bytes tweak required", tweakf, TF_TWEAK_SIZE);
 		xclose(twfd);
 	}
 
@@ -915,8 +915,8 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 	tf_convkey(key);
 	if (ctr_mode == TFC_MODE_XTS) tf_convkey(xtskey);
 	if (do_tfcrypt1 == YES) {
-		if (!tweakf) skein(key+TF_FROM_BITS(TF_MAX_BITS)+TF_SIZE_UNIT, 2*TF_UNIT_BITS, NULL, key, TF_FROM_BITS(TFC_KEY_BITS));
-		tf_key_tweak_compat(key);
+		if (!tweakf) skein(tweak, TF_NR_TWEAK_BITS, NULL, key, TF_FROM_BITS(TFC_KEY_BITS));
+		tf_tweak_set(key, tweak);
 	}
 	if (ctr_mode == TFC_MODE_ECB) goto _ctrskip2;
 	tfc_data_to_words64(&iseek_blocks, sizeof(iseek_blocks));

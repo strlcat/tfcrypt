@@ -32,7 +32,7 @@
 char *progname;
 int exitcode;
 
-tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)];
+tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)], tweak[TF_TWEAK_SIZE];
 struct skein sk;
 struct tfe_stream tfe;
 tfc_byte srcblk[TFC_BLKSIZE], dstblk[TFC_BLKSIZE], *pblk;

@@ -69,6 +69,7 @@ void xexit(int status)
 	memset(ctr, 0, sizeof(ctr));
 	memset(mackey, 0, sizeof(mackey));
 	memset(xtskey, 0, sizeof(xtskey));
+	memset(tweak, 0, sizeof(tweak));
 	memset(&sk, 0, sizeof(struct skein));
 	memset(&tfe, 0, sizeof(struct tfe_stream));
 

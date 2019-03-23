@@ -130,7 +130,7 @@ extern tfc_byte tfc_salt[TFC_MAX_SALT];
 
 extern char *progname;
 extern int exitcode;
-extern tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)];
+extern tfc_byte key[TF_KEY_SIZE], ctr[TF_BLOCK_SIZE], xtskey[TF_KEY_SIZE], mackey[TF_FROM_BITS(TF_MAX_BITS)], tweak[TF_TWEAK_SIZE];
 extern struct skein sk;
 extern struct tfe_stream tfe;
 extern tfc_byte srcblk[TFC_BLKSIZE], dstblk[TFC_BLKSIZE], *pblk;
@@ -203,7 +203,6 @@ void change_status_width(int signal);
 void change_status_timer(int signal);
 void setup_next_alarm(tfc_useconds useconds);
 void skein(void *hash, size_t bits, const void *key, const void *data, size_t szdata);
-void tf_key_tweak_compat(void *key);
 tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize offset, tfc_fsize readto);
 
 void read_defaults(const char *path, tfc_yesno noerr);
