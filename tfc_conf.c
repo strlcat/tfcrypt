@@ -94,6 +94,10 @@ _nspc:
 			|| macbits > TF_MAX_BITS || macbits % 8)
 				xerror(NO, YES, YES, "[%s] macbits=%s: invalid MAC bits setting", path, d);
 		}
+		else if (!strcmp(s, "do_full_key")) {
+			if (!strcasecmp(d, "yes")) do_full_key = YES;
+			else if (!strcasecmp(d, "no")) do_full_key = NO;
+		}
 		else xerror(NO, YES, YES, "[%s] %s: unknown keyword", path, s);
 	}
 

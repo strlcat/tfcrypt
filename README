@@ -10,18 +10,18 @@ Blowfish and Twofish ciphers, which are in use still up to today.
 
 tfcrypt is actually a frontend for Threefish with (by default) XTS mode of operation.
 As a key it uses either password or keyfile, which is then hashed many times
-with Skein hash function. Default key length is 1280 bits (160 bytes).
+with Skein hash function.
 
 This program is incompatible with older, "tf1024" tfcrypt version. This version aims to
 provide a portable encryption tool to encrypt fixed media such as disks and archive files,
-as well as to provide decades long privacy for encrypted data. That's why it uses 1024 bit
-encryption and, unlike older version, virtually extends key size to 1280 bits by
-removing tweak feature from Threefish and uses either XTS (by default) or OCB modes of
-operation instead, to encrypt fixed media in a secure undetectable way.
-
+as well as to provide decades long privacy for encrypted data.
 Supported modes of operation: CTR, ECB, CBC, XTS, OCB and arbitrary long keystream.
 OCB mode does not use Skein hash function to hash and verify message, instead, it does
 a single pass crypt and verify, thus, it is faster than other modes when both crypt and verify.
+
+Additionally, this version provides a way to virtually "extend" key size to 1280 bits,
+by enabling "full_key" option or changing "do_full_key" default setting in tfcrypt_defs.h.
+In this mode, tweak is ignored, and filled with extended key material.
 
 THREEFISH NOTES
 

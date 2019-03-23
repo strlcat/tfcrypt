@@ -159,10 +159,11 @@ _baddfname:
 				break;
 			case 't':
 				tweakf = optarg;
+				do_full_key = NO;
 				break;
 			case 'T':
 				tfc_saltsz = 0;
-				do_tfcrypt1 = YES;
+				do_full_key = NO;
 				break;
 			case 'l':
 				if (maxlen != NOFSIZE) break;
@@ -493,8 +494,6 @@ _baddfname:
 		xerror(NO, YES, YES, "Cannot encrypt and read CTR from source!");
 	if (overwrite_source && counter_opt == TFC_CTR_RAND)
 		xerror(NO, YES, YES, "Cannot embed a CTR into file when overwriting it!");
-	if (tweakf && do_tfcrypt1 == NO)
-		xerror(NO, YES, YES, "Use -T with -t tweakfile to enable old tfcrypt mode!");
 	if (ctr_mode == TFC_MODE_PLAIN
 	&& (do_edcrypt || do_mac || rawkey
 	|| mackey_opt || counter_opt || counter_file))
@@ -618,7 +617,7 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 	else password = YES;
 
 	errno = 0;
-	if (do_tfcrypt1 == YES && tweakf) {
+	if (do_full_key == NO && tweakf) {
 		int twfd;
 
 		if (!strcmp(tweakf, "-")) twfd = 0;
@@ -914,7 +913,7 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 
 	tf_convkey(key);
 	if (ctr_mode == TFC_MODE_XTS) tf_convkey(xtskey);
-	if (do_tfcrypt1 == YES) {
+	if (do_full_key == NO) {
 		if (!tweakf) skein(tweak, TF_NR_TWEAK_BITS, NULL, key, TF_FROM_BITS(TFC_KEY_BITS));
 		tf_tweak_set(key, tweak);
 	}
