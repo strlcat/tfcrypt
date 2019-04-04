@@ -239,6 +239,7 @@ void usage(void)
 	tfc_say("    when the whole status line width is smaller than tty width.");
 	tfc_say("    statless: emit less information in status line (only processed data).");
 	tfc_say("    norepeat: do not ask for any possible password confirmations.");
+	tfc_say("    showsecrets: show passwords in plaintext instead of masking them.");
 	tfc_say("    prompt=str: set main password prompts to this string.");
 	tfc_say("    macprompt=str: set MAC password prompts to this string.");
 	tfc_say("    shorthex: with -H, do not print printable characters, dump only hex string.");

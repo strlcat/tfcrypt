@@ -51,6 +51,38 @@ static int getps_hex_filter(struct getpasswd_state *getps, char chr, size_t pos)
 	return 0;
 }
 
+static inline int isctrlchr(int c)
+{
+	if (c == 9) return 0;
+	if (c >= 0 && c <= 31) return 1;
+	if (c == 127) return 1;
+	return 0;
+}
+
+static int getps_plain_filter(struct getpasswd_state *getps, char chr, size_t pos)
+{
+	int x;
+
+	x = getps_filter(getps, chr, pos);
+	if (x != 1) return x;
+
+	if (pos < getps->pwlen && !isctrlchr(chr))
+		write(getps->efd, &chr, sizeof(char));
+	return 1;
+}
+
+static int getps_plain_hex_filter(struct getpasswd_state *getps, char chr, size_t pos)
+{
+	int x;
+
+	x = getps_hex_filter(getps, chr, pos);
+	if (x != 1) return x;
+
+	if (pos < getps->pwlen && !isctrlchr(chr))
+		write(getps->efd, &chr, sizeof(char));
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
 	int c;
@@ -227,6 +259,8 @@ _baddfname:
 						do_full_hexdump = NO;
 					else if (!strcmp(s, "fullkey"))
 						do_full_key = YES;
+					else if (!strcmp(s, "showsecrets"))
+						show_secrets = YES;
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {
 						s += 5;
 						blksize = (size_t)tfc_humanfsize(s, &stoi);
@@ -572,8 +606,8 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 		getps.passwd = pwdask;
 		getps.pwlen = sizeof(pwdask)-1;
 		getps.echo = mac_pw_prompt ? mac_pw_prompt : "Enter MAC password: ";
-		getps.charfilter = getps_filter;
-		getps.maskchar = 'x';
+		getps.charfilter = (show_secrets == YES) ? getps_plain_filter : getps_filter;
+		getps.maskchar = (show_secrets == YES) ? 0 : 'x';
 		getps.flags = GETP_WAITFILL;
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting MAC password");
@@ -767,8 +801,8 @@ _xts2keyaskstr:	memset(&getps, 0, sizeof(struct getpasswd_state));
 		getps.passwd = (char *)pblk;
 		getps.pwlen = n;
 		getps.echo = pw_prompt ? pw_prompt : "Enter rawkey (str): ";
-		getps.charfilter = getps_filter;
-		getps.maskchar = 'x';
+		getps.charfilter = (show_secrets == YES) ? getps_plain_filter : getps_filter;
+		getps.maskchar = (show_secrets == YES) ? 0 : 'x';
 		getps.flags = GETP_WAITFILL;
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting string rawkey");
@@ -791,8 +825,8 @@ _rawkey_hex_again:
 		getps.passwd = pwdask;
 		getps.pwlen = (TF_FROM_BITS(TFC_KEY_BITS)*2);
 		getps.echo = pw_prompt ? pw_prompt : "Enter rawkey (hex): ";
-		getps.charfilter = getps_hex_filter;
-		getps.maskchar = 'x';
+		getps.charfilter = (show_secrets == YES) ? getps_plain_hex_filter : getps_hex_filter;
+		getps.maskchar = (show_secrets == YES) ? 0 : 'x';
 		getps.flags = GETP_WAITFILL;
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting hex rawkey");
@@ -817,8 +851,8 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 		getps.passwd = pwdask;
 		getps.pwlen = sizeof(pwdask)-1;
 		getps.echo = pw_prompt ? pw_prompt : "Enter password: ";
-		getps.charfilter = getps_filter;
-		getps.maskchar = 'x';
+		getps.charfilter = (show_secrets == YES) ? getps_plain_filter : getps_filter;
+		getps.maskchar = (show_secrets == YES) ? 0 : 'x';
 		getps.flags = GETP_WAITFILL;
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting password");
