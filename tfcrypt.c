@@ -950,20 +950,20 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 		tf_tweak_set(key, tweak);
 	}
 	if (ctr_mode == TFC_MODE_ECB) goto _ctrskip2;
+
+	if (counter_opt == TFC_CTR_ZERO) memset(ctr, 0, ctrsz);
+
 	tfc_data_to_words64(&iseek_blocks, sizeof(iseek_blocks));
 	tf_ctr_set(ctr, &iseek_blocks, sizeof(iseek_blocks));
 
-	switch (counter_opt) {
-		case TFC_CTR_SHOW:
-			switch (do_outfmt) {
-				case TFC_OUTFMT_B64: tfc_printbase64(stderr, ctr, ctrsz, YES); break;
-				case TFC_OUTFMT_RAW: xwrite(2, ctr, ctrsz); break;
-				case TFC_OUTFMT_HEX: mehexdump(ctr, ctrsz, ctrsz, YES); break;
-			}
-			break;
-		case TFC_CTR_RAND: tfc_getrandom(ctr, ctrsz); break;
-		case TFC_CTR_ZERO: memset(ctr, 0, ctrsz); break;
+	if (counter_opt == TFC_CTR_SHOW) {
+		switch (do_outfmt) {
+			case TFC_OUTFMT_B64: tfc_printbase64(stderr, ctr, ctrsz, YES); break;
+			case TFC_OUTFMT_RAW: xwrite(2, ctr, ctrsz); break;
+			case TFC_OUTFMT_HEX: mehexdump(ctr, ctrsz, ctrsz, YES); break;
+		}
 	}
+	else if (counter_opt == TFC_CTR_RAND) tfc_getrandom(ctr, ctrsz);
 
 _ctrskip2:
 	if (kfd != -1) {
