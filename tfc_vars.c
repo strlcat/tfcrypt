@@ -41,7 +41,7 @@ tfc_byte tmpdata[TFC_TMPSIZE];
 
 char *randsource = TFC_DEFAULT_RANDSOURCE;
 
-tfc_fsize iseek_blocks, iseek, oseek, maxlen = NOFSIZE;
+tfc_fsize iseek_blocks, iseek, oseek, maxlen = NOFSIZE, ftrunc_dfd = NOFSIZE;
 tfc_fsize total_processed_src, total_processed_dst;
 tfc_fsize delta_processed;
 tfc_fsize genrandom_nr_bytes, genzero_nr_bytes;

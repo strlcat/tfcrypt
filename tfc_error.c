@@ -256,6 +256,7 @@ void usage(void)
 	tfc_say("    Internally this number is translated into number of %u byte blocks.", TFC_U(TF_BLOCK_SIZE));
 	tfc_say("    oseek=val: seek destination file/device by these val bytes.");
 	tfc_say("    count=val: process only these val bytes, both input and output.");
+	tfc_say("    ftrunc=val: truncate output file to these val bytes before closing it.");
 	tfc_say("    xkey=val: take only val bytes from user keyfile.");
 	tfc_say("    okey=val: seek the key before reading it (usually a device).");
 	tfc_say("    xctr=val: specify size in bytes of initial counter prepended or read.");

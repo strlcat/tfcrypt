@@ -138,7 +138,7 @@ extern tfc_byte srcblk[TFC_BLKSIZE], dstblk[TFC_BLKSIZE], *pblk;
 extern tfc_byte macvrfy[SKEIN_DIGEST_SIZE], macresult[SKEIN_DIGEST_SIZE];
 extern tfc_byte tmpdata[TFC_TMPSIZE];
 extern char *randsource;
-extern tfc_fsize iseek_blocks, iseek, oseek, maxlen;
+extern tfc_fsize iseek_blocks, iseek, oseek, maxlen, ftrunc_dfd;
 extern tfc_fsize total_processed_src, total_processed_dst;
 extern tfc_fsize delta_processed;
 extern tfc_fsize genrandom_nr_bytes, genzero_nr_bytes;

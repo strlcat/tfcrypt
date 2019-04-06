@@ -376,6 +376,17 @@ _baddfname:
 						if (counter_opt == TFC_CTR_HEAD)
 							maxlen += TF_BLOCK_SIZE;
 					}
+					else if (!strncmp(s, "ftrunc", 6) && *(s+6) == '=') {
+						s += 7;
+						ftrunc_dfd = tfc_humanfsize(s, &stoi);
+						if (!str_empty(stoi)) {
+							ftrunc_dfd = tfc_fnamesize(s, YES);
+							ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
+							if (ftrunc_dfd == NOFSIZE) xerror(NO, YES, YES,
+							"%s: invalid ftrunc value", s);
+						}
+						else ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
+					}
 					else if (!strncmp(s, "xkey", 4) && *(s+4) == '=') {
 						s += 5;
 						maxkeylen = tfc_humanfsize(s, &stoi);
@@ -1277,6 +1288,7 @@ _nomac:
 
 	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
 	xclose(sfd);
+	if (ftrunc_dfd != NOFSIZE) if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
 	xclose(dfd);
 
 	xexit(exitcode);
