@@ -83,6 +83,30 @@ static int getps_plain_hex_filter(struct getpasswd_state *getps, char chr, size_
 	return 1;
 }
 
+static void make_hint(void *hint, size_t szhint, const void *data, size_t szdata)
+{
+	char t[TF_FROM_BITS(TF_MAX_BITS)];
+
+	skein(t, TF_MAX_BITS, NULL, data, szdata);
+	xor_shrink(hint, szhint, t, sizeof(t));
+	memset(t, 0, sizeof(t));
+}
+
+static void raw_say_hint(void *hint, size_t szhint, const void *data, size_t szdata, const char *prompt)
+{
+	make_hint(hint, szhint, data, szdata);
+	if (prompt) tfc_nfsay(stderr, "%s: ", prompt);
+	mehexdump(hint, szhint, szhint, 1);
+	memset(hint, 0, szhint);
+}
+
+static void say_hint(const void *data, size_t szdata, const char *prompt)
+{
+	char t[TF_SIZE_UNIT];
+	raw_say_hint(t, TF_SIZE_UNIT, data, szdata, prompt);
+	/* t[] is erased (automatically) */
+}
+
 int main(int argc, char **argv)
 {
 	int c;
@@ -623,14 +647,8 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting MAC password");
 		if (n == ((size_t)-2)) xexit(1);
+		if (verbose) say_hint(pwdask, n, "MAC password hint");
 		skein(mackey, TF_MAX_BITS, NULL, pwdask, n);
-		if (verbose) {
-			skein(tmpdata, TF_MAX_BITS, NULL, mackey, TF_FROM_BITS(TF_MAX_BITS));
-			xor_shrink(tmpdata+TF_FROM_BITS(TF_MAX_BITS), TF_SIZE_UNIT, tmpdata, TF_FROM_BITS(TF_MAX_BITS));
-			tfc_nfsay(stderr, "MAC password hint: ");
-			mehexdump(tmpdata+TF_FROM_BITS(TF_MAX_BITS), TF_SIZE_UNIT, TF_SIZE_UNIT, 1);
-			memset(tmpdata, 0, sizeof(tmpdata));
-		}
 	}
 
 	
@@ -818,6 +836,7 @@ _xts2keyaskstr:	memset(&getps, 0, sizeof(struct getpasswd_state));
 		n = xgetpasswd(&getps);
 		if (n == NOSIZE) xerror(NO, NO, YES, "getting string rawkey");
 		if (n == ((size_t)-2)) xexit(1);
+		if (verbose) say_hint(pblk, n, "Raw string key hint");
 		if (ctr_mode == TFC_MODE_XTS) {
 			if (xtskeyset == NO) {
 				pblk = xtskey; n = sizeof(xtskey);
@@ -848,6 +867,7 @@ _rawkey_hex_again:
 		}
 		hex2bin(pblk, pwdask);
 		memset(pwdask, 0, sizeof(pwdask));
+		if (verbose) say_hint(pblk, n/2, "Raw hex key hint");
 		if (ctr_mode == TFC_MODE_XTS) {
 			if (xtskeyset == NO) {
 				pblk = xtskey;
@@ -882,6 +902,7 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 				goto _pwdagain;
 			}
 		}
+		if (verbose) say_hint(pwdask, n, "Password hint");
 		skein(key, TFC_KEY_BITS, mackey_opt ? mackey : NULL, pwdask, n);
 		memset(pwdask, 0, sizeof(pwdask));
 		memset(pwdagain, 0, sizeof(pwdagain));
