@@ -512,6 +512,7 @@ _baddfname:
 			case 'q':
 				quiet = YES;
 				verbose = NO;
+				do_full_hexdump = NO;
 				status_timer = 0;
 				break;
 			case 'v':
