@@ -207,6 +207,7 @@ void skein(void *hash, size_t bits, const void *key, const void *data, size_t sz
 tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize offset, tfc_fsize readto);
 
 void read_defaults(const char *path, tfc_yesno noerr);
+void hash_defaults(char *uhash, size_t szuhash);
 
 void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes);
 void do_edbase64(char **fargv);

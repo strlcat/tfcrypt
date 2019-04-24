@@ -1,6 +1,8 @@
 #ifndef _TFCRYPT_DEFAULTS_HEADER
 #define _TFCRYPT_DEFAULTS_HEADER
 
+/* 5uouFzawL37Un6RtVqWbv0SOX48ew/xntAG5sNaOSlk= */
+
 size_t nr_turns = 262144;
 int ctr_mode = TFC_MODE_XTS;
 size_t macbits = TF_MAX_BITS;

@@ -104,3 +104,35 @@ _nspc:
 	memset(ln, 0, sizeof(ln));
 	fclose(f);
 }
+
+void hash_defaults(char *uhash, size_t szuhash)
+{
+	struct skein sk;
+	char shash[56];
+	const char *mode;
+	tfc_byte hash[TF_FROM_BITS(256)];
+
+	skein_init(&sk, 256);
+
+	skein_update(&sk, tfc_salt, tfc_saltsz);
+
+	memset(shash, 0, sizeof(shash));
+	sprintf(shash, "%zu", nr_turns);
+	skein_update(&sk, shash, strlen(shash));
+
+	mode = tfc_modename(ctr_mode);
+	skein_update(&sk, mode, strlen(mode));
+
+	memset(shash, 0, sizeof(shash));
+	sprintf(shash, "%zu", macbits);
+	skein_update(&sk, shash, strlen(shash));
+
+	skein_update(&sk, do_full_key ? "1" : "0", 1);
+
+	skein_final(hash, &sk);
+	memset(shash, 0, sizeof(shash));
+	base64_encode(shash, (const char *)hash, sizeof(hash));
+	memset(hash, 0, sizeof(hash));
+
+	xstrlcpy(uhash, shash, szuhash);
+}
