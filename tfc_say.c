@@ -2,7 +2,7 @@
  * tfcrypt -- high security Threefish encryption tool.
  *
  * tfcrypt is copyrighted:
- * Copyright (C) 2012-2018 Andrey Rys. All rights reserved.
+ * Copyright (C) 2012-2019 Andrey Rys. All rights reserved.
  *
  * tfcrypt is licensed to you under the terms of std. MIT/X11 license:
  *
