@@ -176,6 +176,11 @@ void usage(void)
 	tfc_say("    head: when decrypting, read CTR from beginning of stream,");
 	tfc_say("    rand: generate random CTR and write it to beginning of stream,");
 	tfc_say("    zero: assume zero CTR is used, do not read from and write it to stream,");
+	tfc_say("    hexc:nr[,hexc:nr,...]: construct counter from given pattern.");
+	tfc_say("      Example: \"ff:124,08:2,80:2\" will fill counter first with 124 0xff bytes,");
+	tfc_say("      then with 2 0x08 bytes, then 2 0x80 bytes. To fill with zeroes, it is");
+	tfc_say("      simple to specify just a \"0:128\" as a pattern. Note that bytes that");
+	tfc_say("      exceed CTR space will be just dropped, and any unused bytes are set to zeroes.");
 	tfc_say("    <file>: read CTR from given file (both when encrypting/decrypting).");
 	tfc_say("      default is to derive CTR from user provided password or keyfile with");
 	tfc_say("      a single Skein function turn over derived, %u byte raw key", TFC_U(TF_KEY_SIZE));

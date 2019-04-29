@@ -149,6 +149,29 @@ _baddfname:
 					counter_opt = TFC_CTR_RAND;
 				else if (!strcasecmp(optarg, "zero"))
 					counter_opt = TFC_CTR_ZERO;
+				else if (strchr(optarg, ':')) {
+					char *ss, chr;
+
+					counter_opt = TFC_CTR_SSET;
+					n = sizeof(ctr);
+
+					s = d = optarg; t = NULL;
+					while ((s = strtok_r(d, ",", &t))) {
+						if (d) d = NULL;
+
+						if (n == 0) break;
+						ss = strchr(s, ':');
+						if (!ss) continue;
+						*ss = 0; ss++;
+						chr = (char)strtoul(s, &stoi, 16);
+						if (!str_empty(stoi)) continue;
+						x = (size_t)strtoul(ss, &stoi, 10);
+						if (!str_empty(stoi)) continue;
+						if (x > n) x = n;
+						memset(ctr+(sizeof(ctr)-n), (int)chr, x);
+						n -= x;
+					}
+				}
 				else counter_file = sksum_hashlist_file = optarg;
 				break;
 			case 'C':
