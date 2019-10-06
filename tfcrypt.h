@@ -162,7 +162,7 @@ extern char *srcfname, *dstfname, *do_mac_file, *counter_file, *sksum_hashlist_f
 extern char *saltf, *genkeyf, *mackeyf, *tweakf;
 extern char *pw_prompt, *mac_pw_prompt;
 extern tfc_useconds status_timer, bench_timer;
-extern tfc_useconds current_time, delta_time;
+extern tfc_useconds total_time, current_time, delta_time;
 extern struct getpasswd_state getps;
 
 size_t xread(int fd, void *data, size_t szdata);
@@ -188,6 +188,7 @@ tfc_yesno str_empty(const char *str);
 void xclose(int fd);
 const char *tfc_modename(int mode);
 void tfc_getcurtime(tfc_useconds *tx);
+char *tfc_format_time(tfc_useconds t);
 tfc_fsize tfc_fdsize(int fd);
 tfc_fsize tfc_fdgetpos(int fd);
 tfc_fsize tfc_fnamesize(char *fname, tfc_yesno noexit);

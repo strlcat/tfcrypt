@@ -69,6 +69,6 @@ char *srcfname = TFC_STDIN_NAME, *dstfname = TFC_STDOUT_NAME, *do_mac_file, *cou
 char *saltf, *genkeyf, *mackeyf, *tweakf;
 char *pw_prompt, *mac_pw_prompt;
 tfc_useconds status_timer, bench_timer;
-tfc_useconds current_time, delta_time;
+tfc_useconds total_time, current_time, delta_time;
 
 struct getpasswd_state getps;

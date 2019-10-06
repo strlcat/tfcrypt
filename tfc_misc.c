@@ -94,6 +94,28 @@ void tfc_getcurtime(tfc_useconds *tx)
 	memset(&t, 0, sizeof(t));
 }
 
+char *tfc_format_time(tfc_useconds t)
+{
+	tfc_useconds secs, dsecs;
+	unsigned days, hours, minutes, seconds;
+	static char r[128];
+
+	secs = (tfc_useconds)TFC_UTODSECS(t);
+	dsecs = (tfc_useconds)(t - (secs * 1000000));
+
+	days = secs / 86400;
+	hours = (secs / 3600) % 24;
+	minutes = (secs / 60) % 60;
+	seconds = secs % 60;
+
+	if (days > 0) sprintf(r, "%ud,%02u:%02u:%02u.%03u", days, hours, minutes, seconds, (unsigned)(dsecs / 1000));
+	else if (hours > 0) sprintf(r, "%02u:%02u:%02u.%03u", hours, minutes, seconds, (unsigned)(dsecs / 1000));
+	else if (minutes > 0) sprintf(r, "%02u:%02u.%03u", minutes, seconds, (unsigned)(dsecs / 1000));
+	else sprintf(r, "%02u.%03u", seconds, (unsigned)(dsecs / 1000));
+
+	return r;
+}
+
 tfc_fsize tfc_fdsize(int fd)
 {
 	off_t l, cur;

@@ -65,6 +65,7 @@ void print_crypt_status(int signal)
 	}
 
 _out:	tfc_getcurtime(&current_time);
+	total_time += (current_time - delta_time);
 	seconds = TFC_UTODSECS(current_time - delta_time);
 	wr_speed = delta_processed / seconds;
 	tfc_describescale(total_processed_src, &human_totalproc_src, &src_scale_idx);
@@ -90,29 +91,29 @@ _out:	tfc_getcurtime(&current_time);
 	if (do_less_stats == YES) {
 		tfc_nfsay(stderr, "%s%s:"
 			" %s %.2f%s,"
-			" %.2f%s B/s",
+			" %.2f%s B/s @%s",
 			inplace, progname,
 			oper_mode,
 			human_totalproc_dst, tfc_getscale(dst_scale_idx),
-			human_wr_speed, tfc_getscale(wr_speed_scale));
+			human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 	}
 	else {
 		if (ctr_mode <= TFC_MODE_PLAIN) tfc_nfsay(stderr, "%s%s: read: %llu (%.2f%s),"
 			" %s %llu (%.2f%s) bytes,"
-			" (%llu (%.2f%s) B/s)",
+			" (%llu (%.2f%s) B/s), time %s",
 			inplace, progname,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
-			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale));
+			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 		else tfc_nfsay(stderr, "%s%s: read: %llu (%.2f%s),"
 			" %s %s %llu (%.2f%s) bytes,"
-			" (%llu (%.2f%s) B/s)",
+			" (%llu (%.2f%s) B/s), time %s",
 			inplace, progname,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			tfc_modename(ctr_mode), oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
-			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale));
+			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 	}
 
 	if ((do_statline_dynamic == NO || last == YES || signal == -1) && was_sigint == NO) tfc_esay("\n");
