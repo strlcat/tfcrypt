@@ -425,14 +425,21 @@ _baddfname:
 					}
 					else if (!strncmp(s, "ftrunc", 6) && *(s+6) == '=') {
 						s += 7;
-						ftrunc_dfd = tfc_humanfsize(s, &stoi);
-						if (!str_empty(stoi)) {
-							ftrunc_dfd = tfc_fnamesize(s, YES);
-							ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
-							if (ftrunc_dfd == NOFSIZE) xerror(NO, YES, YES,
-							"%s: invalid ftrunc value", s);
+						if (!strcmp(s, "tail")) {
+							do_ftrunc = TFC_FTRUNC_TAIL;
+							ftrunc_dfd = NOFSIZE;
 						}
-						else ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
+						else {
+							do_ftrunc = TFC_DO_FTRUNC;
+							ftrunc_dfd = tfc_humanfsize(s, &stoi);
+							if (!str_empty(stoi)) {
+								ftrunc_dfd = tfc_fnamesize(s, YES);
+								ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
+								if (ftrunc_dfd == NOFSIZE) xerror(NO, YES, YES,
+								"%s: invalid ftrunc value", s);
+							}
+							else ftrunc_dfd = tfc_modifysize(ftrunc_dfd, strchr(s, ':'));
+						}
 					}
 					else if (!strncmp(s, "xkey", 4) && *(s+4) == '=') {
 						s += 5;
@@ -1333,7 +1340,10 @@ _nomac:
 
 	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
 	xclose(sfd);
-	if (ftrunc_dfd != NOFSIZE) if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
+	if (do_ftrunc > TFC_NO_FTRUNC) {
+		if (do_ftrunc == TFC_FTRUNC_TAIL) ftrunc_dfd = total_processed_dst;
+		if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
+	}
 	xclose(dfd);
 
 	xexit(exitcode);
