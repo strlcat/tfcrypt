@@ -99,7 +99,54 @@ void usage(void)
 		xexit(0);
 	}
 
-	if ((strlen(progname) <= 9)
+	if (!strcmp(progname, "iotool")) {
+		is_embedded_prog = YES;
+		tfc_say("usage: %s [-E how] [-l length] [-O opts] [-aqvw] [-V secs] [source] [output]", progname);
+		tfc_say("\n");
+		tfc_say("%s: do dd-like input/output, writing source to output whole or partially.", progname);
+		tfc_say("  -E how: how to behave on I/O errors (both src or dst):");
+		tfc_say("    exit: print error if not quiet, then exit,");
+		tfc_say("    cont: print error if not quiet, then continue,");
+		tfc_say("      no action to pad missing data is attempted.");
+		tfc_say("      may be dangerous when working with block devices.");
+		tfc_say("    sync: print error if not quiet, then continue,");
+		tfc_say("      pad missing data block with zeroes.");
+		tfc_say("    lsync: same as sync, but does not use SEEK_SET logic,");
+		tfc_say("      lsync uses only relative seek operations, and does not prequery");
+		tfc_say("      the current file position for exact offsets, which maybe unsafe.");
+		tfc_say("      For this reason, it is HIGHLY recommended to use sync instead!");
+		tfc_say("      Note that both sync and lsync work only with read errors!");
+		tfc_say("  default error action is exit with printing status if not quiet.");
+		tfc_say("  -E xall: turn on error actions above for all errors, not just EIO errors.");
+		tfc_say("  -E xseek: ignore positioning and other seek related errors.");
+		tfc_say("    Multiple -E specifiers may be given in separate options.");
+		tfc_say("  -a: shortcut of -O xtime.");
+		tfc_say("  -l length: read only these first bytes of source.");
+		tfc_say("  -O opts: set options (comma separated list):");
+		tfc_say("    sync: request a synchronous I/O for a output,");
+		tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
+		tfc_say("    trunc: open(O_WRONLY) will truncate output file to zero size.");
+		tfc_say("    pad: pad incomplete (l.t. %u bytes) block with zeroes.", TFC_U(TF_BLOCK_SIZE));
+		tfc_say("    xtime: copy timestamps from source to destination files.");
+		tfc_say("    gibsize: use SI units of size: 1k = 1000. Applies only to size prefixes.");
+		tfc_say("    Computers convention is to use 1024, whereas SI/hdd measure in 1000.");
+		tfc_say("    plainstats: force status line to be plain: no fancy dynamic stuff.");
+		tfc_say("    Dynamic line works well only on VT100 compatible ttys, and");
+		tfc_say("    when the whole status line width is smaller than tty width.");
+		tfc_say("    statless: emit less information in status line (only processed data).");
+		tfc_say("    iobs=val: set IO block size value. Must not exceed %u bytes.", TFC_U(TFC_BLKSIZE));
+		tfc_say("    iseek=val: seek source file/device by these val bytes.");
+		tfc_say("    oseek=val: seek destination file/device by these val bytes.");
+		tfc_say("    count=val: process only these val bytes, both input and output.");
+		tfc_say("    ftrunc=val: truncate output file to these val bytes before closing it.");
+		tfc_say("    ftrunc=tail: truncate output's tail, leaving only processed data.");
+		tfc_say("  -w: overwrite source file. If not file, ignored.");
+		tfc_say("  -q: always be quiet, never tell anything (except when signaled).");
+		tfc_say("  -v: print number of read and written encrypted bytes, and explain stages.");
+		tfc_say("  -V seconds: activate timer that will repeatedly print statistics to stderr.");
+		tfc_say("\n");
+	}
+	else if ((strlen(progname) <= 9)
 	&& ((!strcmp(progname, "sksum"))
 	|| ((!memcmp(progname, "sk", 2))
 	&& (!memcmp(progname+3, "sum", 3)
@@ -123,7 +170,7 @@ void usage(void)
 		tfc_say("them is specified as \"-\", then reads are performed from stdin.");
 		tfc_say("\n");
 	}
-	else if (!strcmp(progname, "base64")) {
+	else if (!strcmp(progname, "tfbase64")) {
 		is_embedded_prog = YES;
 		tfc_say("usage: %s [-ed] [source] [output]", progname);
 		tfc_say("\n");
@@ -188,6 +235,7 @@ void usage(void)
 	tfc_say("  -v: print number of read and written encrypted bytes, and explain stages.");
 	tfc_say("  -V seconds: activate timer that will repeatedly print statistics to stderr.");
 	tfc_say("  -a: shortcut of -O xtime.");
+	tfc_say("  -l length: read only these first bytes of source.");
 	tfc_say("  -r <file>: specify random source instead of /dev/urandom.");
 	tfc_say("  -R nr_bytes: generate nr_bytes of random bytes suitable for use as key data.");
 	tfc_say("    -R also supports these aliases specified instead of nr_bytes:");

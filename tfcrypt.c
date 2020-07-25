@@ -128,6 +128,12 @@ int main(int argc, char **argv)
 _baddfname:
 	memset(s, 0, n);
 
+	if (!strcmp(progname, "iotool")) {
+		do_edcrypt = TFC_DO_PLAIN;
+		password = YES;
+		ctr_mode = TFC_MODE_PLAIN;
+	}
+
 	opterr = 0;
 	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
 		switch (c) {
@@ -195,10 +201,10 @@ _baddfname:
 				ctr_mode = TFC_MODE_PLAIN;
 				break;
 			case 'e':
-				do_edcrypt = TFC_DO_ENCRYPT;
+				if (do_edcrypt != TFC_DO_PLAIN) do_edcrypt = TFC_DO_ENCRYPT;
 				break;
 			case 'd':
-				do_edcrypt = TFC_DO_DECRYPT;
+				if (do_edcrypt != TFC_DO_PLAIN) do_edcrypt = TFC_DO_DECRYPT;
 				break;
 			case 'D':
 				macbits = strtoul(optarg, &stoi, 10);
