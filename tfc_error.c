@@ -91,11 +91,14 @@ void usage(void)
 	tfc_yesno is_embedded_prog = NO;
 
 	if (optopt == 'V') {
-		char shash[64];
 		tfc_say("tfcrypt toolkit, version %s.", _TFCRYPT_VERSION);
-		hash_defaults(shash, sizeof(shash));
-		tfc_say("Defaults hash: %s", shash);
-		memset(shash, 0, sizeof(shash));
+		if (ctr_mode != TFC_MODE_PLAIN) {
+			char shash[64];
+
+			hash_defaults(shash, sizeof(shash));
+			tfc_say("Defaults hash: %s", shash);
+			memset(shash, 0, sizeof(shash));
+		}
 		xexit(0);
 	}
 
