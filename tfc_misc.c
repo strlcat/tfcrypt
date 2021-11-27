@@ -135,7 +135,7 @@ tfc_fsize tfc_fdgetpos(int fd)
 	off_t t;
 
 	t = lseek(fd, 0L, SEEK_CUR);
-	if (t == -1) return NOFSIZE;
+	if (t == (off_t)-1) return NOFSIZE;
 	return (tfc_fsize)t;
 }
 

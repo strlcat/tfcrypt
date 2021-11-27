@@ -139,7 +139,7 @@ extern tfc_byte macvrfy[SKEIN_DIGEST_SIZE], macresult[SKEIN_DIGEST_SIZE];
 extern tfc_byte tmpdata[TFC_TMPSIZE];
 extern char *randsource;
 extern tfc_fsize iseek_blocks, iseek, oseek, maxlen, ftrunc_dfd;
-extern tfc_fsize total_processed_src, total_processed_dst;
+extern tfc_fsize total_processed_src, total_processed_dst, total_written_dst;
 extern tfc_fsize delta_processed;
 extern tfc_fsize genrandom_nr_bytes, genzero_nr_bytes;
 extern tfc_fsize rdpos;
@@ -219,7 +219,7 @@ enum { NO, YES };
 
 enum { TFC_ERRACT_EXIT, TFC_ERRACT_CONT, TFC_ERRACT_SYNC, TFC_ERRACT_LSYNC };
 enum { TFC_DO_PLAIN, TFC_DO_ENCRYPT, TFC_DO_DECRYPT };
-enum { TFC_MAC_DROP = -1, TFC_MAC_SIGN = 1, TFC_MAC_VRFY, TFC_MAC_JUST_VRFY };
+enum { TFC_MAC_DROP = -1, TFC_MAC_SIGN = 1, TFC_MAC_VRFY, TFC_MAC_JUST_VRFY, TFC_MAC_JUST_VRFY2 };
 enum { TFC_MACKEY_RAWKEY = 1, TFC_MACKEY_PASSWORD, TFC_MACKEY_FILE };
 enum { TFC_RAWKEY_KEYFILE = 1, TFC_RAWKEY_ASKSTR, TFC_RAWKEY_ASKHEX };
 enum { TFC_OUTFMT_HEX = 1, TFC_OUTFMT_B64, TFC_OUTFMT_RAW };

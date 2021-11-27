@@ -36,8 +36,8 @@ void exit_sigterm(int signal)
 void print_crypt_status(int signal)
 {
 	tfc_fsize wr_speed;
-	double seconds, human_totalproc_src, human_totalproc_dst, human_wr_speed;
-	int src_scale_idx, dst_scale_idx, wr_speed_scale;
+	double seconds, human_totalproc_src, human_totalproc_dst, human_totalwrit_dst, human_wr_speed;
+	int src_scale_idx, dst_scale_idx, wri_scale_idx, wr_speed_scale;
 	const char *oper_mode, *inplace;
 	static tfc_yesno last;
 
@@ -64,6 +64,7 @@ void print_crypt_status(int signal)
 	wr_speed = delta_processed / seconds;
 	tfc_describescale(total_processed_src, &human_totalproc_src, &src_scale_idx);
 	tfc_describescale(total_processed_dst, &human_totalproc_dst, &dst_scale_idx);
+	tfc_describescale(total_written_dst, &human_totalwrit_dst, &wri_scale_idx);
 	tfc_describescale(wr_speed, &human_wr_speed, &wr_speed_scale);
 
 	if (bench_timer) {
@@ -102,11 +103,13 @@ void print_crypt_status(int signal)
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 		else tfc_nfsay(stderr, "%s%s: read: %llu (%.2f%s),"
 			" %s %s %llu (%.2f%s) bytes,"
+			" written %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
 			inplace, progname,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			tfc_modename(ctr_mode), oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
+			total_written_dst, human_totalwrit_dst, tfc_getscale(wri_scale_idx),
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 	}
 

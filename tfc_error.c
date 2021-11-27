@@ -269,7 +269,11 @@ void usage(void)
 	tfc_say("    -: read a detached MAC signature from stdin,");
 	tfc_say("    drop: do not verify attached MAC, if any, and drop it from output.");
 	tfc_say("  -m: just verify MAC provided with -M. Do not write output file.");
-	tfc_say("    This option must be specified after -M.");
+	tfc_say("  -u: almost same as -m, but turns on MAC pre-test mode, when verified");
+	tfc_say("    signature enables writing output file. It is useful when decrypting small texts.");
+	tfc_say("    The source must be a seekable file, otherwise this mode will be disabled.");
+	tfc_say("    In this mode, decryption is done twice and verification done once.");
+	tfc_say("    Both -m and -u options must be specified after -M.");
 	tfc_say("  -E how: how to behave on I/O errors (both src or dst):");
 	tfc_say("    exit: print error if not quiet, then exit,");
 	tfc_say("    cont: print error if not quiet, then continue,");

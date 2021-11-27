@@ -28,6 +28,8 @@
 
 #include "tfcrypt.h"
 
+static tfc_byte svctr[TF_BLOCK_SIZE];
+
 static int getps_filter(struct getpasswd_state *getps, char chr, size_t pos)
 {
 	if (chr == '\x03') {
@@ -113,6 +115,7 @@ int main(int argc, char **argv)
 	double td;
 	char *s, *d, *t, *stoi;
 	size_t x, n;
+	tfc_fsize rwd;
 
 	progname = basename(argv[0]);
 
@@ -135,7 +138,7 @@ _baddfname:
 	}
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:O:S:AmM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:O:S:AmuM:R:Z:WHD:")) != -1) {
 		switch (c) {
 			case 'L':
 				read_defaults(optarg, NO);
@@ -501,9 +504,11 @@ _baddfname:
 					do_mac_file = optarg;
 				break;
 			case 'm':
+			case 'u':
 				if (do_mac != TFC_MAC_VRFY)
 					xerror(NO, YES, YES, "signature source was not specified");
 				do_mac = TFC_MAC_JUST_VRFY;
+				if (c == 'u') do_mac = TFC_MAC_JUST_VRFY2;
 				break;
 			case 'R':
 			case 'Z':
@@ -1024,6 +1029,7 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 
 	tfc_data_to_words64(&iseek_blocks, sizeof(iseek_blocks));
 	tf_ctr_set(ctr, &iseek_blocks, sizeof(iseek_blocks));
+	if (do_mac == TFC_MAC_JUST_VRFY2) memcpy(svctr, ctr, TF_BLOCK_SIZE);
 
 	if (counter_opt == TFC_CTR_SHOW) {
 		switch (do_outfmt) {
@@ -1106,6 +1112,24 @@ _ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 
 	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 
+	if (do_mac == TFC_MAC_JUST_VRFY2) {
+		rwd = tfc_fdgetpos(sfd);
+		if (rwd == NOFSIZE) {
+			tfc_esay("%s: WARNING: input is not seekable, disabling MAC testing mode", progname);
+			do_mac = TFC_MAC_VRFY;
+		}
+		goto _nodecrypt_again_vrfy2;
+
+_decrypt_again_vrfy2:
+		if (lseek(sfd, (off_t)rwd, SEEK_SET) == ((off_t)-1)) {
+			xerror(ignore_seek_errors, NO, YES, "MAC testing seek failed");
+		}
+		total_processed_src = rwd;
+		memcpy(ctr, svctr, TF_BLOCK_SIZE);
+		memset(svctr, 0, TF_BLOCK_SIZE);
+	}
+
+_nodecrypt_again_vrfy2:
 	errno = 0;
 	do_stop = NO;
 	while (1) {
@@ -1175,7 +1199,7 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 
 		if (do_mac >= TFC_MAC_VRFY && ctr_mode < TFC_MODE_OCB)
 			skein_update(&sk, dstblk, ldone);
-		if (do_mac == TFC_MAC_JUST_VRFY) goto _nowrite;
+		if (do_mac >= TFC_MAC_JUST_VRFY) goto _nowrite;
 
 		pblk = dstblk;
 		lrem = ldone;
@@ -1189,6 +1213,7 @@ _wagain:	lio = xwrite(dfd, pblk, lrem);
 			lrem -= lio;
 			goto _wagain;
 		}
+		total_written_dst += ldone;
 _nowrite:	total_processed_dst += ldone;
 		delta_processed += ldone;
 
@@ -1270,10 +1295,18 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 					else mehexdump(macresult, TF_FROM_BITS(macbits), TF_FROM_BITS(macbits), YES);
 				}
 			}
+			if (do_mac == TFC_MAC_JUST_VRFY2) {
+				if (verbose) tfc_esay("%s: -u: MAC signature is valid, proceeding with decrypting it again", progname);
+				do_mac = TFC_MAC_DROP;
+				goto _decrypt_again_vrfy2;
+			}
 		}
 		else {
-			if (quiet == NO) tfc_esay("%s: signature is BAD: "
+			if (quiet == NO) {
+				tfc_esay("%s: signature is BAD: "
 				"wrong password, key, mode, or file is not signed", progname);
+				if (do_mac == TFC_MAC_JUST_VRFY2) tfc_esay("%s: -u: MAC signature is invalid, not decrypting it again", progname);
+			}
 			exitcode = 1;
 		}
 
