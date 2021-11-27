@@ -641,7 +641,7 @@ _nosalt:
 			lrem = lblock = sizeof(tmpdata);
 			if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(mkfd);
 _mkragain:		lio = xread(mkfd, pblk, lrem);
-			if (lio == 0) do_stop = YES;
+			if (lio == 0 && do_stop == NO) do_stop = YES;
 			if (lio != NOSIZE) ldone += lio;
 			else {
 				if (errno != EIO && catch_all_errors != YES)
@@ -1115,7 +1115,7 @@ _ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 		lrem = lblock = blk_len_adj(maxlen, total_processed_src, blksize);
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _ragain:	lio = xread(sfd, pblk, lrem);
-		if (lio == 0) do_stop = TFC_STOP_BEGAN;
+		if (lio == 0) do_stop = YES;
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES)
@@ -1194,8 +1194,6 @@ _nowrite:	total_processed_dst += ldone;
 
 		if (maxlen != NOFSIZE && total_processed_src >= maxlen) break;
 	}
-
-	if (do_stop == TFC_STOP_FULL) goto _nomac;
 
 	errno = 0;
 	if (do_mac >= TFC_MAC_VRFY) {
@@ -1341,8 +1339,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 		memset(tmpdata, 0, sizeof(tmpdata));
 	}
 
-_nomac:
-	if (verbose || status_timer || do_stop == TFC_STOP_FULL) print_crypt_status(0);
+	if (verbose || status_timer || do_stop == YES) print_crypt_status(0);
 
 	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
 	xclose(sfd);

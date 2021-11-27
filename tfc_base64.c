@@ -28,6 +28,8 @@
 
 #include "tfcrypt.h"
 
+enum { TFB64_STOP1 = 1, TFB64_STOPF };
+
 void do_edbase64(char **fargv)
 {
 	struct base64_decodestate dstate;
@@ -70,7 +72,7 @@ void do_edbase64(char **fargv)
 		ldone = 0;
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _again:		lio = xread(sfd, pblk, lrem);
-		if (lio == 0) do_stop = YES;
+		if (lio == 0) do_stop = TFB64_STOP1;
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES)
@@ -108,7 +110,7 @@ _again:		lio = xread(sfd, pblk, lrem);
 
 		pblk = dstblk;
 		if (ldone == 0) {
-			do_stop = TFC_STOP_FULL;
+			do_stop = TFB64_STOPF;
 			break;
 		}
 		lrem = ldone;
@@ -118,7 +120,7 @@ _wagain:	lio = xwrite(dfd, pblk, lrem);
 		else xerror(NO, NO, NO, "%s", fargv[1]);
 		if (do_edcrypt == TFC_DO_ENCRYPT) {
 			size_t t;
-			if (lread >= lblock || do_stop == TFC_STOP_FULL) {
+			if (lread >= lblock || do_stop == TFB64_STOPF) {
 				t = xwrite(dfd, "\n", 1);
 				if (t != NOSIZE) lio += t;
 				else lio = NOSIZE;
@@ -134,13 +136,13 @@ _wagain:	lio = xwrite(dfd, pblk, lrem);
 		}
 	}
 
-	if (do_edcrypt == TFC_DO_ENCRYPT && do_stop == TFC_STOP_BEGAN) {
+	if (do_edcrypt == TFC_DO_ENCRYPT && do_stop == TFB64_STOP1) {
 		size_t t = estate.count;
 		pblk = dstblk + estate.count;
 		base64_encode_blockend((char *)dstblk, &estate);
 		lrem = estate.count - t;
 		ldone = 0;
-		do_stop = TFC_STOP_FULL;
+		do_stop = TFB64_STOPF;
 		goto _wagain;
 	}
 

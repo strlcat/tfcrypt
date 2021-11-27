@@ -39,10 +39,10 @@ void print_crypt_status(int signal)
 	double seconds, human_totalproc_src, human_totalproc_dst, human_wr_speed;
 	int src_scale_idx, dst_scale_idx, wr_speed_scale;
 	const char *oper_mode, *inplace;
-	static tfc_yesno last, was_sigint;
+	static tfc_yesno last;
 
 	if (last == YES) return;
-	if (signal == 0) last = YES;
+	if (signal == 0 || signal == -1) last = YES;
 
 	switch (do_edcrypt) {
 		case TFC_DO_ENCRYPT: oper_mode = "encrypted"; break;
@@ -55,16 +55,10 @@ void print_crypt_status(int signal)
 	}
 
 	if (signal == SIGINT || signal == SIGTERM) {
-		if (signal == SIGINT) was_sigint = YES;
-		if (do_stop == TFC_STOP_FULL) xexit(0);
-		do_stop = TFC_STOP_FULL;
-		status_timer = 0;
-		verbose = NO;
-		if (bench_timer) goto _out;
-		return;
+		do_stop = YES;
 	}
 
-_out:	tfc_getcurtime(&current_time);
+	tfc_getcurtime(&current_time);
 	total_time += (current_time - delta_time);
 	seconds = TFC_UTODSECS(current_time - delta_time);
 	wr_speed = delta_processed / seconds;
@@ -81,7 +75,7 @@ _out:	tfc_getcurtime(&current_time);
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale),
 			TFC_UTODSECS(current_time - delta_time));
-		if (was_sigint == NO) tfc_esay("\n");
+		tfc_esay("\n");
 		xexit(0);
 	}
 
@@ -116,16 +110,19 @@ _out:	tfc_getcurtime(&current_time);
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 	}
 
-	if ((do_statline_dynamic == NO || last == YES || signal == -1) && was_sigint == NO) tfc_esay("\n");
+	if (do_stop == NO && do_statline_dynamic == NO) tfc_esay("\n");
+	if (last) tfc_esay("\n");
 	statline_was_shown = YES;
+
+	if ((signal == SIGINT || signal == SIGTERM) && do_stop == YES) {
+		tfc_esay("\n");
+		exit_sigterm(signal);
+	}
 
 	delta_processed = 0;
 	tfc_getcurtime(&delta_time);
 
-	if (signal == SIGTSTP) {
-		tfc_esay("stopping.");
-		kill(getpid(), SIGSTOP);
-	}
+	if (signal == SIGTSTP) kill(getpid(), SIGSTOP);
 
 	if (status_timer) setup_next_alarm(status_timer);
 }
