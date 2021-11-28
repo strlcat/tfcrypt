@@ -35,7 +35,14 @@ void exit_sigterm(int signal)
 
 void handle_sigtstp(int signal)
 {
-	if (signal == SIGTSTP) kill(getpid(), SIGSTOP);
+	if (signal == SIGTSTP) {
+		tfc_useconds freeze_start, freeze_end;
+
+		tfc_getcurtime(&freeze_start);
+		kill(getpid(), SIGSTOP);
+		tfc_getcurtime(&freeze_end);
+		total_time -= (freeze_end - freeze_start);
+	}
 }
 
 void print_crypt_status(int signal)
@@ -79,8 +86,7 @@ void print_crypt_status(int signal)
 			"avg. speed %llu (%.2f%s) B/s, time %.4fs.",
 			oper_mode,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
-			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale),
-			TFC_UTODSECS(current_time - delta_time));
+			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), seconds);
 		tfc_esay("\n");
 		xexit(0);
 	}

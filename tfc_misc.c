@@ -85,11 +85,11 @@ const char *tfc_modename(int mode)
 
 void tfc_getcurtime(tfc_useconds *tx)
 {
-	struct timeval t;
+	struct timespec t;
 	memset(&t, 0, sizeof(t));
 
-	gettimeofday(&t, NULL);
-	*tx = (tfc_useconds)t.tv_sec * 1000000 + t.tv_usec;
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	*tx = (tfc_useconds)t.tv_sec * 1000000 + (t.tv_nsec / 1000);
 
 	memset(&t, 0, sizeof(t));
 }
@@ -108,10 +108,10 @@ char *tfc_format_time(tfc_useconds t)
 	minutes = (secs / 60) % 60;
 	seconds = secs % 60;
 
-	if (days > 0) sprintf(r, "%ud,%02u:%02u:%02u.%03u", days, hours, minutes, seconds, (unsigned)(dsecs / 1000));
-	else if (hours > 0) sprintf(r, "%02u:%02u:%02u.%03u", hours, minutes, seconds, (unsigned)(dsecs / 1000));
-	else if (minutes > 0) sprintf(r, "%02u:%02u.%03u", minutes, seconds, (unsigned)(dsecs / 1000));
-	else sprintf(r, "%02u.%03u", seconds, (unsigned)(dsecs / 1000));
+	if (days > 0) sprintf(r, "%ud,%02u:%02u:%02u.%04u", days, hours, minutes, seconds, (unsigned)(dsecs / 100));
+	else if (hours > 0) sprintf(r, "%02u:%02u:%02u.%04u", hours, minutes, seconds, (unsigned)(dsecs / 100));
+	else if (minutes > 0) sprintf(r, "%02u:%02u.%04u", minutes, seconds, (unsigned)(dsecs / 100));
+	else sprintf(r, "%02u.%04u", seconds, (unsigned)(dsecs / 100));
 
 	return r;
 }

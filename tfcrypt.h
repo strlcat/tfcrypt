@@ -61,6 +61,7 @@
 #include <limits.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <time.h>
 #include <sys/time.h>
 #include <stdint.h>
 
