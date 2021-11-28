@@ -43,7 +43,7 @@ void do_edbase64(char **fargv)
 	if (fargv[0]) {
 		if (!strcmp(fargv[0], "-")) sfd = 0;
 		else {
-			sfd = open(fargv[0], O_RDONLY | O_LARGEFILE);
+			sfd = xopen(fargv[0], O_RDONLY | O_LARGEFILE);
 			if (do_preserve_time) if (fstat(sfd, &s_stat) == -1)
 				xerror(YES, NO, YES, "stat(%s)", fargv[0]);
 		}
@@ -52,8 +52,7 @@ void do_edbase64(char **fargv)
 
 	if (fargv[0] && fargv[1]) {
 		if (!strcmp(fargv[1], "-")) dfd = 1;
-		else dfd = open(fargv[1], O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
-		if (dfd == -1) xerror(NO, NO, YES, "%s", fargv[1]);
+		else dfd = xopen(fargv[1], O_WRONLY | O_CREAT | O_LARGEFILE | write_flags);
 	}
 
 	if (do_edcrypt == TFC_DO_ENCRYPT) {

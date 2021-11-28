@@ -143,8 +143,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 		fd = 1;
 		foutname = TFC_STDOUT_NAME;
 	}
-	else fd = open(foutname, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
-	if (fd == -1) xerror(NO, NO, YES, "%s", foutname);
+	else fd = xopen(foutname, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags);
 
 	if (offset) {
 		if (lseek(fd, offset, SEEK_SET) == -1)

@@ -148,6 +148,7 @@ void usage(void)
 		tfc_say("  -a: shortcut of -O xtime.");
 		tfc_say("  -l length: read only these first bytes of source.");
 		tfc_say("  -O opts: set options (comma separated list):");
+		tfc_say("    ro: open all files only for reading, even those intended for writing,");
 		tfc_say("    sync: request a synchronous I/O for a output,");
 		tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
 		tfc_say("    trunc: open(O_WRONLY) will truncate output file to zero size.");
@@ -315,6 +316,7 @@ void usage(void)
 	tfc_say("    Multiple -E specifiers may be given in separate options.");
 	tfc_say("  -o logfile: redirect all messages to logfile instead of stderr.");
 	tfc_say("  -O opts: set options (comma separated list):");
+	tfc_say("    ro: open all files only for reading, even those intended for writing,");
 	tfc_say("    sync: request a synchronous I/O for a output,");
 	tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
 	tfc_say("    trunc: open(O_WRONLY) will truncate output file to zero size.");

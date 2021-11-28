@@ -64,7 +64,7 @@ int do_edcrypt = TFC_DO_ENCRYPT, do_stop, quiet, error_action;
 int counter_opt, mackey_opt, do_mac, do_outfmt = TFC_OUTFMT_B64, rawkey;
 int idx, write_flags;
 tfc_yesno catch_all_errors, ignore_seek_errors, password, overwrite_source, do_fsync, do_pad, do_ftrunc = TFC_NO_FTRUNC;
-tfc_yesno do_preserve_time, do_stats_in_gibs, do_statline_dynamic = YES, do_less_stats, show_pid;
+tfc_yesno do_preserve_time, do_stats_in_gibs, do_statline_dynamic = YES, do_less_stats, show_pid, read_only;
 tfc_yesno no_repeat, do_full_hexdump = YES, verbose, statline_was_shown, show_secrets, show_when_done;
 char *srcfname = TFC_STDIN_NAME, *dstfname = TFC_STDOUT_NAME, *do_mac_file, *counter_file, *sksum_hashlist_file;
 char *saltf, *genkeyf, *mackeyf, *tweakf;

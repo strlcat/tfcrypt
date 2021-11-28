@@ -34,11 +34,14 @@ static tfc_fsize rwd, do_read_loops, loopcnt;
 static void open_log(const char *logfile)
 {
 	int fd;
+	tfc_yesno ro;
 
 	if (!strcmp(logfile, "-")) return;
 
-	fd = open(logfile, O_WRONLY | O_CREAT | O_LARGEFILE | O_TRUNC, 0666);
-	if (fd == -1) xerror(NO, NO, YES, "%s", logfile);
+	ro = read_only;
+	read_only = NO;
+	fd = xopen(logfile, O_WRONLY | O_CREAT | O_LARGEFILE | O_TRUNC);
+	read_only = ro;
 	xclose(2);
 	if (dup2(fd, 2) == -1) xexit(2);
 	xclose(fd);
@@ -317,6 +320,10 @@ _baddfname:
 						do_fsync = YES;
 					else if (!strcmp(s, "pad"))
 						do_pad = YES;
+					else if (!strcmp(s, "ro"))
+						read_only = YES;
+					else if (!strcmp(s, "rw"))
+						read_only = NO;
 					else if (!strcmp(s, "xtime"))
 						do_preserve_time = YES;
 					else if (!strcmp(s, "gibsize"))
@@ -650,8 +657,7 @@ _baddfname:
 		if (!strcasecmp(saltf, "disable")) goto _nosalt;
 
 		if (!strcmp(saltf, "-")) saltfd = 0;
-		else saltfd = open(saltf, O_RDONLY | O_LARGEFILE);
-		if (saltfd == -1) xerror(NO, NO, YES, "%s", saltf);
+		else saltfd = xopen(saltf, O_RDONLY | O_LARGEFILE);
 		lio = xread(saltfd, tfc_salt, TFC_MAX_SALT - TF_FROM_BITS(TFC_KEY_BITS));
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", saltf);
 		tfc_saltsz = lio;
@@ -664,8 +670,7 @@ _nosalt:
 		tfc_yesno do_stop;
 
 		if (!strcmp(mackeyf, "-")) mkfd = 0;
-		else mkfd = open(mackeyf, O_RDONLY | O_LARGEFILE);
-		if (mkfd == -1) xerror(NO, NO, YES, "%s", mackeyf);
+		else mkfd = xopen(mackeyf, O_RDONLY | O_LARGEFILE);
 
 		skein_init(&sk, TFC_KEY_BITS);
 
@@ -740,8 +745,7 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 	if (argv[idx]) {
 		if (password || rawkey > TFC_RAWKEY_KEYFILE) goto _nokeyfd;
 		if (!strcmp(argv[idx], "-")) kfd = 0;
-		else kfd = open(argv[idx], O_RDONLY | O_LARGEFILE);
-		if (kfd == -1) xerror(NO, NO, YES, "%s", argv[idx]);
+		else kfd = xopen(argv[idx], O_RDONLY | O_LARGEFILE);
 
 		lio = strnlen(argv[idx], PATH_MAX);
 		memset(argv[idx], '*', lio);
@@ -769,11 +773,10 @@ _nokeyfd:
 	if (argv[idx]) {
 		if (!strcmp(argv[idx], "-") && kfd) sfd = 0;
 		else {
-			sfd = open(argv[idx], O_RDONLY | O_LARGEFILE);
+			sfd = xopen(argv[idx], O_RDONLY | O_LARGEFILE);
 			if (do_preserve_time) if (fstat(sfd, &s_stat) == -1)
 				xerror(YES, NO, YES, "stat(%s)", argv[idx]);
 		}
-		if (sfd == -1) xerror(NO, NO, YES, "%s", argv[idx]);
 
 		if ((do_mac >= TFC_MAC_VRFY || do_mac <= TFC_MAC_DROP) && !do_mac_file) {
 			maxlen = tfc_fdsize(sfd);
@@ -798,8 +801,7 @@ _nokeyfd:
 		int ctrfd;
 
 		if (!strcmp(counter_file, "-")) ctrfd = 0;
-		else ctrfd = open(counter_file, O_RDONLY | O_LARGEFILE);
-		if (ctrfd == -1) xerror(NO, NO, YES, "%s", counter_file);
+		else ctrfd = xopen(counter_file, O_RDONLY | O_LARGEFILE);
 		lio = xread(ctrfd, ctr, ctrsz);
 		if (lio == NOSIZE) xerror(NO, NO, YES, "%s", counter_file);
 		if (lio < ctrsz) xerror(NO, YES, YES, "counter file is too small (%zu)!", lio);
@@ -999,8 +1001,7 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 
 		pblk = key;
 		if (!strcmp(genkeyf, "-")) krfd = 1;
-		else krfd = open(genkeyf, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
-		if (krfd == -1) xerror(NO, NO, YES, "%s", genkeyf);
+		else krfd = xopen(genkeyf, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags);
 _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerror(NO, NO, YES, "%s", genkeyf);
 		if (do_fsync && fsync(krfd) == -1) xerror(NO, NO, YES, "%s", genkeyf);
 		if (verbose && xtskeyset == NO) {
@@ -1071,11 +1072,8 @@ _ctrskip2:
 _plain:
 	if (argv[idx]) {
 		if (!strcmp(argv[idx], "-")) dfd = 1;
-		else dfd = open(argv[idx], O_RDWR | O_LARGEFILE | write_flags, 0666);
-		if (dfd == -1) {
-			dfd = open(argv[idx], O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
-			if (dfd == -1) xerror(NO, NO, YES, "%s", argv[idx]);
-		}
+		else dfd = xxopen(YES, argv[idx], O_RDWR | O_LARGEFILE | write_flags);
+		if (dfd == -1) dfd = xopen(argv[idx], O_WRONLY | O_CREAT | O_LARGEFILE | write_flags);
 		dstfname = argv[idx];
 		idx++;
 	}
@@ -1292,8 +1290,7 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 			int mfd;
 
 			if (!strcmp(do_mac_file, "-")) mfd = 0;
-			else mfd = open(do_mac_file, O_RDONLY | O_LARGEFILE);
-			if (mfd == -1) xerror(YES, NO, NO, "%s", do_mac_file);
+			else mfd = xopen(do_mac_file, O_RDONLY | O_LARGEFILE);
 			lio = ldone = xread(mfd, tmpdata, sizeof(tmpdata));
 			if (lio == NOSIZE) xerror(NO, NO, YES, "%s", do_mac_file);
 			if (!memcmp(tmpdata, TFC_ASCII_TFC_MAC_FOURCC, TFC_ASCII_TFC_MAC_FOURCC_LEN)) {
@@ -1384,8 +1381,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 			int mfd;
 
 			if (!strcmp(do_mac_file, "-")) mfd = 1;
-			else mfd = open(do_mac_file, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags, 0666);
-			if (mfd == -1) xerror(YES, NO, NO, "%s", do_mac_file);
+			else mfd = xopen(do_mac_file, O_WRONLY | O_CREAT | O_LARGEFILE | write_flags);
 			if (do_outfmt == TFC_OUTFMT_B64) {
 				memcpy(macvrfy, tmpdata, TF_FROM_BITS(macbits));
 				memset(tmpdata, 0, TFC_TMPSIZE);

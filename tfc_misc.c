@@ -63,6 +63,26 @@ tfc_yesno str_empty(const char *str)
 	return NO;
 }
 
+int xxopen(tfc_yesno noerr, const char *pathname, int flags)
+{
+	int r;
+
+	if ((flags & O_WRONLY || flags & O_RDWR)) {
+		if (read_only == YES) flags = O_RDONLY;
+		else flags |= write_flags;
+	}
+
+	flags |= O_LARGEFILE;
+	r = open(pathname, flags, 0666);
+	if (noerr == NO && r == -1) xerror(NO, NO, YES, "%s", pathname);
+	return r;
+}
+
+int xopen(const char *pathname, int flags)
+{
+	return xxopen(NO, pathname, flags);
+}
+
 void xclose(int fd)
 {
 	if (fd < 3) return;
@@ -164,7 +184,7 @@ tfc_fsize tfc_fnamesize(char *fname, tfc_yesno noexit)
 		memset(s, 0, 2);
 	}
 
-	fnmfd = open(fname, O_RDONLY);
+	fnmfd = xxopen(YES, fname, O_RDONLY);
 	if (s) memcpy(s, T, 2);
 	if (fnmfd == -1) {
 		xerror(noexit, NO, YES, "%s", fname);

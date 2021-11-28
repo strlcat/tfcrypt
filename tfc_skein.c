@@ -225,7 +225,7 @@ _dothat:
 			s = strchr(shash, ' ');
 			if (s && s[1] == ' ') *s = 0;
 
-			fd = open(fname, O_RDONLY | O_LARGEFILE);
+			fd = xxopen(YES, fname, O_RDONLY | O_LARGEFILE);
 			if (fd == -1) {
 				xerror(YES, NO, YES, "%s", fname);
 				exitcode = 1;
@@ -277,7 +277,7 @@ _dothat:
 
 	for (x = 0; fargv[x] && xx; x++) {
 		if (!strcmp(fargv[x], "-")) fd = 0;
-		else fd = open(fargv[x], O_RDONLY | O_LARGEFILE);
+		else fd = xxopen(YES, fargv[x], O_RDONLY | O_LARGEFILE);
 		if (fd == -1) {
 			xerror(YES, NO, YES, "%s", fargv[x]);
 			exitcode = 1;
