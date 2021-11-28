@@ -311,6 +311,8 @@ _baddfname:
 						write_flags |= O_SYNC;
 					else if (!strcmp(s, "trunc"))
 						write_flags |= O_TRUNC;
+					else if (!strcmp(s, "append"))
+						write_flags |= O_APPEND;
 					else if (!strcmp(s, "fsync"))
 						do_fsync = YES;
 					else if (!strcmp(s, "pad"))

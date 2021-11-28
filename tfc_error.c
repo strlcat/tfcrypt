@@ -151,6 +151,7 @@ void usage(void)
 		tfc_say("    sync: request a synchronous I/O for a output,");
 		tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
 		tfc_say("    trunc: open(O_WRONLY) will truncate output file to zero size.");
+		tfc_say("    append: open(O_APPEND) will append data to output file.");
 		tfc_say("    pad: pad incomplete (l.t. %u bytes) block with zeroes.", TFC_U(TF_BLOCK_SIZE));
 		tfc_say("    xtime: copy timestamps from source to destination files.");
 		tfc_say("    gibsize: use SI units of size: 1k = 1000. Applies only to size prefixes.");
@@ -317,6 +318,7 @@ void usage(void)
 	tfc_say("    sync: request a synchronous I/O for a output,");
 	tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
 	tfc_say("    trunc: open(O_WRONLY) will truncate output file to zero size.");
+	tfc_say("    append: open(O_APPEND) will append data to output file.");
 	tfc_say("    pad: pad incomplete (l.t. %u bytes) block with zeroes.", TFC_U(TF_BLOCK_SIZE));
 	tfc_say("    xtime: copy timestamps from source to destination files.");
 	tfc_say("    gibsize: use SI units of size: 1k = 1000. Applies only to size prefixes.");
