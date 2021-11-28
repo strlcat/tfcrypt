@@ -1089,7 +1089,7 @@ _plain:
 	sigact.sa_handler = print_crypt_status;
 	sigaction(SIGUSR1, &sigact, NULL);
 	sigaction(SIGALRM, &sigact, NULL);
-	if (status_timer) setup_next_alarm(status_timer);
+	if (status_timer) setup_next_alarm(status_timer > 1000000 ? 1000000 : status_timer);
 	sigact.sa_handler = change_status_width;
 	sigaction(SIGQUIT, &sigact, NULL);
 	sigact.sa_handler = change_status_timer;

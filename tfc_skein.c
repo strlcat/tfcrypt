@@ -222,7 +222,7 @@ _dothat:
 				continue;
 			}
 
-			if (status_timer) setup_next_alarm(status_timer);
+			if (status_timer) setup_next_alarm(status_timer > 1000000 ? 1000000 : status_timer);
 			if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, iseek, maxlen) != YES) {
 				xerror(YES, NO, YES, "%s", fname);
 				exitcode = 1;
@@ -274,7 +274,7 @@ _dothat:
 			continue;
 		}
 
-_dohash:	if (status_timer) setup_next_alarm(status_timer);
+_dohash:	if (status_timer) setup_next_alarm(status_timer > 1000000 ? 1000000 : status_timer);
 		if (skeinfd(hash, bits, mackey_opt ? mackey : NULL, fd, iseek, maxlen) != YES) {
 			xerror(YES, NO, YES, "%s", fargv[x]);
 			exitcode = 1;
