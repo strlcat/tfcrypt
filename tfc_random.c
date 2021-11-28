@@ -28,6 +28,20 @@
 
 #include "tfcrypt.h"
 
+static void print_crypt_status_genrnd(int signal)
+{
+	if (signal == SIGTERM || signal == SIGINT) {
+		if (xexit_no_nl == YES) xexit_no_nl = NO;
+	}
+	print_crypt_status(signal);
+}
+
+static void exit_sigterm_genrnd(int signal)
+{
+	if (xexit_no_nl == YES) xexit_no_nl = NO;
+	exit_sigterm(signal);
+}
+
 static void get_urandom(const char *src, void *buf, size_t size)
 {
 	tfc_byte *ubuf = buf;
@@ -102,13 +116,13 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	sigact.sa_handler = change_status_timer;
 	sigaction(SIGUSR2, &sigact, NULL);
 	if (quiet == NO) {
-		sigact.sa_handler = print_crypt_status;
+		sigact.sa_handler = print_crypt_status_genrnd;
 		sigaction(SIGINT, &sigact, NULL);
 		sigaction(SIGTERM, &sigact, NULL);
 		sigaction(SIGTSTP, &sigact, NULL);
 	}
 	else {
-		sigact.sa_handler = exit_sigterm;
+		sigact.sa_handler = exit_sigterm_genrnd;
 		sigaction(SIGINT, &sigact, NULL);
 		sigaction(SIGTERM, &sigact, NULL);
 		sigact.sa_handler = handle_sigtstp;

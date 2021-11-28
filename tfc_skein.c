@@ -29,6 +29,12 @@
 #include "tfcrypt.h"
 #include "tfcore.h"
 
+static void exit_sigterm_skein(int signal)
+{
+	if (xexit_no_nl == YES) xexit_no_nl = NO;
+	exit_sigterm(signal);
+}
+
 void skein(void *hash, size_t bits, const void *key, const void *data, size_t szdata)
 {
 	struct skein sk;
@@ -179,7 +185,7 @@ _dothat:
 	sigaction(SIGQUIT, &sigact, NULL);
 	sigact.sa_handler = change_status_timer;
 	sigaction(SIGUSR2, &sigact, NULL);
-	sigact.sa_handler = exit_sigterm;
+	sigact.sa_handler = exit_sigterm_skein;
 	sigaction(SIGINT, &sigact, NULL);
 	sigaction(SIGTERM, &sigact, NULL);
 	sigact.sa_handler = handle_sigtstp;

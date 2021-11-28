@@ -1251,6 +1251,8 @@ _nowrite:	total_processed_dst += ldone;
 		}
 	}
 
+	if (verbose && status_timer && do_statline_dynamic == YES && statline_was_shown == YES) tfc_esay("\n");
+
 	errno = 0;
 	if (do_mac >= TFC_MAC_VRFY) {
 		if (!do_mac_file) {
