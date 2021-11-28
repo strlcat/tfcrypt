@@ -298,6 +298,7 @@ void usage(void)
 	tfc_say("  -E xall: turn on error actions above for all errors, not just EIO errors.");
 	tfc_say("  -E xseek: ignore positioning and other seek related errors.");
 	tfc_say("    Multiple -E specifiers may be given in separate options.");
+	tfc_say("  -o logfile: redirect all messages to logfile instead of stderr.");
 	tfc_say("  -O opts: set options (comma separated list):");
 	tfc_say("    sync: request a synchronous I/O for a output,");
 	tfc_say("    fsync: on each write() call a corresponding fsync(fd),");
@@ -315,6 +316,7 @@ void usage(void)
 	tfc_say("    prompt=str: set main password prompts to this string.");
 	tfc_say("    macprompt=str: set MAC password prompts to this string.");
 	tfc_say("    shorthex: with -H, do not print printable characters, dump only hex string.");
+	tfc_say("    logfile: (same as -o) redirect all messages to logfile instead of stderr.");
 	tfc_say("    iobs=val: set IO block size value. Must not exceed %u bytes.", TFC_U(TFC_BLKSIZE));
 	tfc_say("    xtsblocks=val: use these nr of TF blocks per XTS block. Default is %u.", TFC_U(TFC_XTSBLOCKS));
 	tfc_say("    iseek=val: seek source file/device by these val bytes.");

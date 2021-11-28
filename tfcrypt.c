@@ -30,6 +30,18 @@
 
 static tfc_byte svctr[TF_BLOCK_SIZE];
 
+static void open_log(const char *logfile)
+{
+	int fd;
+
+	fd = open(logfile, O_WRONLY | O_CREAT | O_LARGEFILE | O_TRUNC, 0666);
+	if (fd == -1) xerror(NO, NO, YES, "%s", logfile);
+	xclose(2);
+	if (dup2(fd, 2) == -1) xerror(NO, NO, YES, "dup2(%d, 2) for %s", fd, logfile);
+	xclose(fd);
+	do_statline_dynamic = NO;
+}
+
 static int getps_filter(struct getpasswd_state *getps, char chr, size_t pos)
 {
 	if (chr == '\x03') {
@@ -138,7 +150,7 @@ _baddfname:
 	}
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:O:S:AmuM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:o:O:S:AmuM:R:Z:WHD:")) != -1) {
 		switch (c) {
 			case 'L':
 				read_defaults(optarg, NO);
@@ -285,6 +297,9 @@ _baddfname:
 					error_action = TFC_ERRACT_LSYNC;
 				else xerror(NO, YES, YES, "invalid error action %s specified", optarg);
 				break;
+			case 'o':
+				open_log(optarg);
+				break;
 			case 'O':
 				s = d = optarg; t = NULL;
 				while ((s = strtok_r(d, ",", &t))) {
@@ -317,6 +332,8 @@ _baddfname:
 						do_full_key = YES;
 					else if (!strcmp(s, "showsecrets"))
 						show_secrets = YES;
+					else if (!strncmp(s, "logfile", 7) && *(s+7) == '=')
+						open_log(s+8);
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {
 						s += 5;
 						blksize = (size_t)tfc_humanfsize(s, &stoi);
