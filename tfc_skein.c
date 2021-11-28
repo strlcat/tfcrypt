@@ -252,7 +252,7 @@ _dothat:
 		fclose(f);
 		if (failed) {
 			tfc_esay("%s: WARNING: %u of %u computed checksums did NOT match",
-				progname, failed, totaltested);
+				tfc_format_pid(progname), failed, totaltested);
 			exitcode = 1;
 		}
 		xexit(exitcode);

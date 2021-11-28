@@ -54,7 +54,7 @@ void do_benchmark(tfc_useconds useconds, double dseconds)
 	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 	if (ctr_mode == TFC_MODE_XTS) tfc_getrandom(xtskey, sizeof(xtskey));
 
-	tfc_nfsay(stdout, "%s: doing %s benchmark for %.4f seconds ... ", progname, tfc_modename(ctr_mode), dseconds);
+	tfc_nfsay(stdout, "%s: doing %s benchmark for %.4f seconds ... ", tfc_format_pid(progname), tfc_modename(ctr_mode), dseconds);
 
 	do_stop = NO;
 	while (1) {

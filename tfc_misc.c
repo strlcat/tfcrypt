@@ -116,6 +116,17 @@ char *tfc_format_time(tfc_useconds t)
 	return r;
 }
 
+char *tfc_format_pid(const char *str)
+{
+	static char r[128];
+	size_t n;
+
+	n = xstrlcpy(r, str, sizeof(r));
+	if (show_pid == YES && sizeof(r)-n >= 22) sprintf(r+n, "[%lu]", (unsigned long)progpid);
+
+	return r;
+}
+
 tfc_fsize tfc_fdsize(int fd)
 {
 	off_t l, cur;

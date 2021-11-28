@@ -81,7 +81,7 @@ void print_crypt_status(int signal)
 
 	if (bench_timer) {
 		tfc_say("done!");
-		tfc_say("%s %s benchmark results:", progname, tfc_modename(ctr_mode));
+		tfc_say("%s %s benchmark results:", tfc_format_pid(progname), tfc_modename(ctr_mode));
 		tfc_nfsay(stdout, "%s %llu (%.2f%s) bytes, "
 			"avg. speed %llu (%.2f%s) B/s, time %.4fs.",
 			oper_mode,
@@ -98,7 +98,7 @@ void print_crypt_status(int signal)
 		tfc_nfsay(stderr, "%s%s%s:"
 			" %s %.2f%s,"
 			" %.2f%s B/s @%s",
-			inplace, (last && show_when_done) ? "finished: " : "", progname,
+			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			oper_mode,
 			human_totalproc_dst, tfc_getscale(dst_scale_idx),
 			human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
@@ -107,7 +107,7 @@ void print_crypt_status(int signal)
 		if (ctr_mode <= TFC_MODE_PLAIN) tfc_nfsay(stderr, "%s%s%s: read: %llu (%.2f%s),"
 			" %s %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, (last && show_when_done) ? "finished: " : "", progname,
+			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
@@ -116,7 +116,7 @@ void print_crypt_status(int signal)
 			" %s %s %llu (%.2f%s) bytes,"
 			" written %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, (last && show_when_done) ? "finished: " : "", progname,
+			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			tfc_modename(ctr_mode), oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
@@ -160,7 +160,7 @@ void change_status_timer(int signal)
 	else status_timer *= 2;
 
 	if (verbose) tfc_esay("%s: status timer was changed to %.2fs",
-		progname, TFC_UTODSECS(status_timer));
+		tfc_format_pid(progname), TFC_UTODSECS(status_timer));
 	setup_next_alarm(status_timer);
 }
 

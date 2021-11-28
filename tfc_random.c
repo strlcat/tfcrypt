@@ -138,7 +138,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	if (ctr_mode == TFC_MODE_PLAIN) memset(srcblk, 0, sizeof(srcblk));
 
 	if (verbose) tfc_nfsay(stderr, "%s: writing %lld bytes to %s ... ",
-		progname, nrbytes, foutname);
+		tfc_format_pid(progname), nrbytes, foutname);
 
 	errno = 0;
 	do_stop = NO;

@@ -39,7 +39,7 @@ void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *
 
 	if (statline_was_shown == YES && do_statline_dynamic == YES) tfc_esay("\n");
 
-	tfc_nfsay(stderr, "%s: ", progname);
+	tfc_nfsay(stderr, "%s: ", tfc_format_pid(progname));
 	tfc_vfsay(stderr, NO, fmt, ap);
 	if (errno && noerrno == NO) {
 		s = strerror(errno);
@@ -317,6 +317,7 @@ void usage(void)
 	tfc_say("    norepeat: do not ask for any possible password confirmations.");
 	tfc_say("    showsecrets: show passwords in plaintext instead of masking them.");
 	tfc_say("    finished: add \"finished\" word before status line when work is finished.");
+	tfc_say("    pid: show %s's process id near it's name in error messages, logs etc.", progname);
 	tfc_say("    prompt=str: set main password prompts to this string.");
 	tfc_say("    macprompt=str: set MAC password prompts to this string.");
 	tfc_say("    shorthex: with -H, do not print printable characters, dump only hex string.");

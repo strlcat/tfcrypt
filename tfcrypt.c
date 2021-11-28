@@ -131,6 +131,7 @@ int main(int argc, char **argv)
 	size_t x, n;
 	tfc_fsize rwd;
 
+	progpid = getpid();
 	progname = basename(argv[0]);
 
 	if (!isatty(2)) do_statline_dynamic = NO;
@@ -336,6 +337,8 @@ _baddfname:
 						show_secrets = YES;
 					else if (!strcmp(s, "finished"))
 						show_when_done = YES;
+					else if (!strcmp(s, "pid"))
+						show_pid = YES;
 					else if (!strncmp(s, "logfile", 7) && *(s+7) == '=')
 						open_log(s+8);
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {
@@ -767,7 +770,7 @@ _nokeyfd:
 
 		if (do_edcrypt == TFC_DO_DECRYPT && do_mac != NO && maxlen != NOFSIZE) {
 			if (verbose) tfc_esay("%s: disabling signature verification on "
-				"requested partial decryption.", progname);
+				"requested partial decryption.", tfc_format_pid(progname));
 			do_mac = NO;
 		}
 
@@ -842,7 +845,7 @@ _ctrskip1:
 
 	if (ctr_mode == TFC_MODE_PLAIN) goto _plain;
 
-	if (verbose) tfc_esay("%s: hashing password", progname);
+	if (verbose) tfc_esay("%s: hashing password", tfc_format_pid(progname));
 
 	if (rawkey == TFC_RAWKEY_KEYFILE) {
 		tfc_yesno xtskeyset = NO;
@@ -1000,9 +1003,9 @@ _pwdagain:	memset(&getps, 0, sizeof(struct getpasswd_state));
 _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerror(NO, NO, YES, "%s", genkeyf);
 		if (do_fsync && fsync(krfd) == -1) xerror(NO, NO, YES, "%s", genkeyf);
 		if (verbose && xtskeyset == NO) {
-			tfc_esay("%s: password hashing done", progname);
-			tfc_esay("%s: rawkey written to %s.", progname, genkeyf);
-			tfc_esay("%s: Have a nice day!", progname);
+			tfc_esay("%s: password hashing done", tfc_format_pid(progname));
+			tfc_esay("%s: rawkey written to %s.", tfc_format_pid(progname), genkeyf);
+			tfc_esay("%s: Have a nice day!", tfc_format_pid(progname));
 		}
 
 		if (ctr_mode == TFC_MODE_XTS) {
@@ -1020,7 +1023,7 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 
 	if (iseek_blocks && (do_edcrypt == TFC_DO_DECRYPT && do_mac != NO)) {
 		if (verbose) tfc_esay("%s: disabling signature verification on "
-			"requested partial decryption.", progname);
+			"requested partial decryption.", tfc_format_pid(progname));
 		do_mac = NO;
 	}
 
@@ -1028,7 +1031,7 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 		if (mackey_opt == TFC_MACKEY_RAWKEY) skein(mackey, TF_MAX_BITS, key, key, TF_FROM_BITS(TFC_KEY_BITS));
 		if (ctr_mode < TFC_MODE_OCB) {
 			if (verbose) tfc_esay("%s: doing MAC calculation, processing speed "
-				"will be slower.", progname);
+				"will be slower.", tfc_format_pid(progname));
 			if (mackey_opt) skein_init_key(&sk, mackey, macbits);
 			else skein_init(&sk, macbits);
 		}
@@ -1066,7 +1069,7 @@ _ctrskip2:
 		xclose(kfd);
 		kfd = -1;
 	}
-	if (verbose) tfc_esay("%s: password hashing done", progname);
+	if (verbose) tfc_esay("%s: password hashing done", tfc_format_pid(progname));
 
 	if (overwrite_source && srcfname) argv[idx] = srcfname;
 
@@ -1138,7 +1141,7 @@ _ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 	if (do_mac == TFC_MAC_JUST_VRFY2) {
 		rwd = tfc_fdgetpos(sfd);
 		if (rwd == NOFSIZE) {
-			tfc_esay("%s: WARNING: input is not seekable, disabling MAC testing mode", progname);
+			tfc_esay("%s: WARNING: input is not seekable, disabling MAC testing mode", tfc_format_pid(progname));
 			do_mac = TFC_MAC_VRFY;
 		}
 		goto _nodecrypt_again_vrfy2;
@@ -1298,7 +1301,7 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 
 		if (ldone < TF_FROM_BITS(macbits)) {
 			if (quiet == NO) tfc_esay("%s: short signature (%zu), "
-				"not verifying", progname, ldone);
+				"not verifying", tfc_format_pid(progname), ldone);
 			exitcode = 1;
 			goto _shortmac;
 		}
@@ -1315,14 +1318,14 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 
 		if (!memcmp(tmpdata, macresult, TF_FROM_BITS(macbits))) {
 			if (quiet == NO) {
-				tfc_esay("%s: signature is good", progname);
+				tfc_esay("%s: signature is good", tfc_format_pid(progname));
 				if (verbose) {
 					if (do_outfmt == TFC_OUTFMT_B64) tfc_printbase64(stderr, macresult, TF_FROM_BITS(macbits), YES);
 					else mehexdump(macresult, TF_FROM_BITS(macbits), TF_FROM_BITS(macbits), YES);
 				}
 			}
 			if (do_mac == TFC_MAC_JUST_VRFY2) {
-				if (verbose) tfc_esay("%s: -u: MAC signature is valid, proceeding with decrypting it again", progname);
+				if (verbose) tfc_esay("%s: -u: MAC signature is valid, proceeding with decrypting it again", tfc_format_pid(progname));
 				do_mac = TFC_MAC_DROP;
 				goto _decrypt_again_vrfy2;
 			}
@@ -1330,8 +1333,8 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 		else {
 			if (quiet == NO) {
 				tfc_esay("%s: signature is BAD: "
-				"wrong password, key, mode, or file is not signed", progname);
-				if (do_mac == TFC_MAC_JUST_VRFY2) tfc_esay("%s: -u: MAC signature is invalid, not decrypting it again", progname);
+				"wrong password, key, mode, or file is not signed", tfc_format_pid(progname));
+				if (do_mac == TFC_MAC_JUST_VRFY2) tfc_esay("%s: -u: MAC signature is invalid, not decrypting it again", tfc_format_pid(progname));
 			}
 			exitcode = 1;
 		}
