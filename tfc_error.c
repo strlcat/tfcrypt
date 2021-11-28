@@ -329,6 +329,7 @@ void usage(void)
 	tfc_say("    showsecrets: show passwords in plaintext instead of masking them.");
 	tfc_say("    finished: add \"finished\" word before status line when work is finished.");
 	tfc_say("    pid: show %s's process id near it's name in error messages, logs etc.", progname);
+	tfc_say("    readloops=val: when seekable source ends, reading continues from it's beginning again.");
 	tfc_say("    prompt=str: set main password prompts to this string.");
 	tfc_say("    macprompt=str: set MAC password prompts to this string.");
 	tfc_say("    shorthex: with -H, do not print printable characters, dump only hex string.");

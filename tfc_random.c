@@ -181,8 +181,10 @@ _wagain:	lio = xwrite(fd, pblk, lrem);
 	}
 
 	if (verbose) tfc_esay("done!");
-	if (verbose || status_timer) print_crypt_status(0);
-	if (verbose) tfc_esay("\n");
+	if (verbose || status_timer) {
+		print_crypt_status(0);
+		tfc_esay("\n");
+	}
 
 	xclose(fd);
 	xexit(0);

@@ -29,6 +29,7 @@
 #include "tfcrypt.h"
 
 static tfc_byte svctr[TF_BLOCK_SIZE];
+static tfc_fsize rwd, do_read_loops, loopcnt;
 
 static void open_log(const char *logfile)
 {
@@ -129,7 +130,6 @@ int main(int argc, char **argv)
 	double td;
 	char *s, *d, *t, *stoi;
 	size_t x, n;
-	tfc_fsize rwd;
 
 	progpid = getpid();
 	progname = basename(argv[0]);
@@ -339,6 +339,10 @@ _baddfname:
 						show_when_done = YES;
 					else if (!strcmp(s, "pid"))
 						show_pid = YES;
+					else if (!strncmp(s, "readloops", 9) && *(s+9) == '=') {
+						do_read_loops = tfc_humanfsize(s+10, &stoi);
+						if (!str_empty(stoi)) do_read_loops = NOSIZE;
+					}
 					else if (!strncmp(s, "logfile", 7) && *(s+7) == '=')
 						open_log(s+8);
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {
@@ -1157,6 +1161,7 @@ _decrypt_again_vrfy2:
 	}
 
 _nodecrypt_again_vrfy2:
+	loopcnt = 1;
 	errno = 0;
 	do_stop = NO;
 	while (1) {
@@ -1166,7 +1171,15 @@ _nodecrypt_again_vrfy2:
 		lrem = lblock = blk_len_adj(maxlen, total_processed_src, blksize);
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
 _ragain:	lio = xread(sfd, pblk, lrem);
-		if (lio == 0) do_stop = YES;
+		if (lio == 0) {
+			if ((do_read_loops != 0 && sfd != 0) && (loopcnt < do_read_loops)) {
+				lseek(sfd, 0L, SEEK_SET);
+				loopcnt++;
+				goto _ragain;
+			}
+
+			do_stop = YES;
+		}
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES)
