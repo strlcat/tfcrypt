@@ -62,6 +62,8 @@ _ex:
 
 void xexit(int status)
 {
+	if (status > 1) goto _do_clean_and_exit;
+
 	xclose(sfd);
 	if (do_ftrunc > TFC_NO_FTRUNC) {
 		if (do_ftrunc == TFC_FTRUNC_TAIL) ftrunc_dfd = total_processed_dst;
@@ -70,6 +72,7 @@ void xexit(int status)
 	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
 	xclose(dfd);
 
+_do_clean_and_exit:
 	memset(srcblk, 0, sizeof(srcblk));
 	memset(dstblk, 0, sizeof(dstblk));
 

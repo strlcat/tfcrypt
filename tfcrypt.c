@@ -37,7 +37,7 @@ static void open_log(const char *logfile)
 	fd = open(logfile, O_WRONLY | O_CREAT | O_LARGEFILE | O_TRUNC, 0666);
 	if (fd == -1) xerror(NO, NO, YES, "%s", logfile);
 	xclose(2);
-	if (dup2(fd, 2) == -1) xerror(NO, NO, YES, "dup2(%d, 2) for %s", fd, logfile);
+	if (dup2(fd, 2) == -1) xexit(2);
 	xclose(fd);
 	do_statline_dynamic = NO;
 }
