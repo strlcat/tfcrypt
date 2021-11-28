@@ -332,6 +332,8 @@ _baddfname:
 						do_full_key = YES;
 					else if (!strcmp(s, "showsecrets"))
 						show_secrets = YES;
+					else if (!strcmp(s, "finished"))
+						show_when_done = YES;
 					else if (!strncmp(s, "logfile", 7) && *(s+7) == '=')
 						open_log(s+8);
 					else if (!strncmp(s, "iobs", 4) && *(s+4) == '=') {

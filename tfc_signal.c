@@ -95,28 +95,28 @@ void print_crypt_status(int signal)
 	else inplace = "";
 
 	if (do_less_stats == YES) {
-		tfc_nfsay(stderr, "%s%s:"
+		tfc_nfsay(stderr, "%s%s%s:"
 			" %s %.2f%s,"
 			" %.2f%s B/s @%s",
-			inplace, progname,
+			inplace, (last && show_when_done) ? "finished: " : "", progname,
 			oper_mode,
 			human_totalproc_dst, tfc_getscale(dst_scale_idx),
 			human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
 	}
 	else {
-		if (ctr_mode <= TFC_MODE_PLAIN) tfc_nfsay(stderr, "%s%s: read: %llu (%.2f%s),"
+		if (ctr_mode <= TFC_MODE_PLAIN) tfc_nfsay(stderr, "%s%s%s: read: %llu (%.2f%s),"
 			" %s %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, progname,
+			inplace, (last && show_when_done) ? "finished: " : "", progname,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
-		else tfc_nfsay(stderr, "%s%s: read: %llu (%.2f%s),"
+		else tfc_nfsay(stderr, "%s%s%s: read: %llu (%.2f%s),"
 			" %s %s %llu (%.2f%s) bytes,"
 			" written %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, progname,
+			inplace, (last && show_when_done) ? "finished: " : "", progname,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			tfc_modename(ctr_mode), oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),

@@ -158,7 +158,7 @@ extern int counter_opt, mackey_opt, do_mac, do_outfmt, rawkey;
 extern int idx, write_flags;
 extern tfc_yesno catch_all_errors, ignore_seek_errors, password, overwrite_source, do_fsync, do_pad, do_ftrunc;
 extern tfc_yesno do_preserve_time, do_stats_in_gibs, do_statline_dynamic, do_less_stats;
-extern tfc_yesno no_repeat, do_full_hexdump, verbose, statline_was_shown, show_secrets;
+extern tfc_yesno no_repeat, do_full_hexdump, verbose, statline_was_shown, show_secrets, show_when_done;
 extern char *srcfname, *dstfname, *do_mac_file, *counter_file, *sksum_hashlist_file;
 extern char *saltf, *genkeyf, *mackeyf, *tweakf;
 extern char *pw_prompt, *mac_pw_prompt;
