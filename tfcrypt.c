@@ -34,6 +34,8 @@ static void open_log(const char *logfile)
 {
 	int fd;
 
+	if (!strcmp(logfile, "-")) return;
+
 	fd = open(logfile, O_WRONLY | O_CREAT | O_LARGEFILE | O_TRUNC, 0666);
 	if (fd == -1) xerror(NO, NO, YES, "%s", logfile);
 	xclose(2);
