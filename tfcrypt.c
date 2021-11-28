@@ -773,7 +773,7 @@ _nokeyfd:
 		}
 		if (sfd == -1) xerror(NO, NO, YES, "%s", argv[idx]);
 
-		if ((do_mac >= TFC_MAC_VRFY || do_mac == TFC_MAC_DROP) && !do_mac_file) {
+		if ((do_mac >= TFC_MAC_VRFY || do_mac <= TFC_MAC_DROP) && !do_mac_file) {
 			maxlen = tfc_fdsize(sfd);
 			if (maxlen == NOFSIZE)
 				xerror(NO, YES, YES,
@@ -1125,6 +1125,7 @@ _ctrwagain:	lio = xwrite(dfd, pblk, lrem);
 			lrem -= lio;
 			goto _ctrwagain;
 		}
+		total_written_dst += ldone;
 		total_processed_dst += ldone;
 		delta_processed += ldone;
 	}
@@ -1330,7 +1331,8 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 			}
 			if (do_mac == TFC_MAC_JUST_VRFY2) {
 				if (verbose) tfc_esay("%s: -u: MAC signature is valid, proceeding with decrypting it again", tfc_format_pid(progname));
-				do_mac = TFC_MAC_DROP;
+				maxlen = total_processed_src - SKEIN_DIGEST_SIZE;
+				do_mac = TFC_MAC_DROP2;
 				goto _decrypt_again_vrfy2;
 			}
 		}
@@ -1347,7 +1349,6 @@ _shortmac:	memset(macvrfy, 0, sizeof(macvrfy));
 		memset(macresult, 0, sizeof(macresult));
 		memset(tmpdata, 0, sizeof(tmpdata));
 	}
-
 	else if (do_mac == TFC_MAC_SIGN) {
 		if (ctr_mode < TFC_MODE_OCB) skein_final(macresult, &sk);
 		else skein(macresult, macbits, mackey, macresult, TF_FROM_BITS(macbits));
@@ -1373,6 +1374,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 				lrem -= lio;
 				goto _macwagain;
 			}
+			total_written_dst += ldone;
 			total_processed_dst += ldone;
 			delta_processed += ldone;
 		}
@@ -1404,6 +1406,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 		memset(macresult, 0, sizeof(macresult));
 		memset(tmpdata, 0, sizeof(tmpdata));
 	}
+	else if (do_mac == TFC_MAC_DROP2) total_processed_src += SKEIN_DIGEST_SIZE;
 
 	if (verbose || status_timer || (do_stop == YES && quiet == NO)) print_crypt_status(0);
 
