@@ -88,6 +88,8 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	size_t lblock, lio, lrem;
 	tfc_byte *pblk;
 
+	xexit_no_nl = YES;
+
 	for (x = 1; x < NSIG; x++) signal(x, SIG_IGN);
 	memset(&sigact, 0, sizeof(sigact));
 	sigact.sa_flags = SA_RESTART;
@@ -180,6 +182,7 @@ _wagain:	lio = xwrite(fd, pblk, lrem);
 
 	if (verbose) tfc_esay("done!");
 	if (verbose || status_timer) print_crypt_status(0);
+	if (verbose) tfc_esay("\n");
 
 	xclose(fd);
 	xexit(0);

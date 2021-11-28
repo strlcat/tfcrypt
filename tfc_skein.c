@@ -47,7 +47,6 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize of
 	tfc_byte *pblk;
 	size_t ldone, lblock, lrem, lio;
 	tfc_fsize total = 0;
-	tfc_yesno stop;
 
 	if (ctr_mode == TFC_MODE_SKSUM) total_processed_src = total_processed_dst = delta_processed = 0;
 
@@ -68,15 +67,15 @@ tfc_yesno skeinfd(void *hash, size_t bits, const void *key, int fd, tfc_fsize of
 	else skein_init(&sk, bits);
 
 	errno = 0;
-	stop = NO;
+	do_stop = NO;
 	while (1) {
-		if (stop) break;
+		if (do_stop) break;
 		pblk = skblk;
 		lblock = lrem = blk_len_adj(readto, total, TFC_BLKSIZE);
 		ldone = 0;
 		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(fd);
 _again:		lio = xread(fd, pblk, lrem);
-		if (lio == 0) stop = YES;
+		if (lio == 0) do_stop = YES;
 		if (lio != NOSIZE) ldone += lio;
 		else {
 			if (errno != EIO && catch_all_errors != YES) goto _fail;
@@ -112,7 +111,10 @@ _again:		lio = xread(fd, pblk, lrem);
 
 	skein_final(hash, &sk);
 	if (ctr_mode == TFC_MODE_SKSUM) {
-		if (verbose || status_timer) print_crypt_status(-1);
+		if (verbose || status_timer) {
+			print_crypt_status(-1);
+			tfc_esay("\n");
+		}
 		total_processed_src = total_processed_dst = delta_processed = 0;
 	}
 	memset(skblk, 0, TFC_BLKSIZE);
@@ -132,6 +134,8 @@ void do_sksum(char *spec, char **fargv)
 	int fd = -1;
 	int x = 0, xx;
 	size_t bits;
+
+	xexit_no_nl = YES;
 
 	if (macbits < TF_MAX_BITS) {
 		bits = macbits;

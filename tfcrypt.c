@@ -576,6 +576,7 @@ _baddfname:
 				break;
 			case 'q':
 				quiet = YES;
+				xexit_no_nl = YES;
 				verbose = NO;
 				do_full_hexdump = NO;
 				status_timer = 0;

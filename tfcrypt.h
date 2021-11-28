@@ -170,6 +170,8 @@ extern struct getpasswd_state getps;
 size_t xread(int fd, void *data, size_t szdata);
 size_t xwrite(int fd, const void *data, size_t szdata);
 
+extern tfc_yesno xexit_no_nl;
+
 void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *fmt, ...);
 void xexit(int status);
 void usage(void);

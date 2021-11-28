@@ -36,6 +36,8 @@ void do_edbase64(char **fargv)
 	struct base64_encodestate estate;
 	size_t lread = 0;
 
+	xexit_no_nl = YES;
+
 	sfd = 0; dfd = 1;
 
 	if (fargv[0]) {
@@ -148,7 +150,6 @@ _wagain:	lio = xwrite(dfd, pblk, lrem);
 
 	memset(&estate, 0, sizeof(struct base64_encodestate));
 	memset(&dstate, 0, sizeof(struct base64_decodestate));
-	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
 	xexit(0);
 }
 

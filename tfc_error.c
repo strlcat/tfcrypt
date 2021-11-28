@@ -28,12 +28,14 @@
 
 #include "tfcrypt.h"
 
+tfc_yesno xexit_no_nl;
+
 void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *fmt, ...)
 {
 	va_list ap;
 	char *s;
 
-	if (quiet) goto _ex;
+	if (quiet) goto _do_sil_exit;
 
 	va_start(ap, fmt);
 
@@ -49,9 +51,14 @@ void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *
 
 	va_end(ap);
 
-	if (nostats == NO) print_crypt_status(-1);
+	if (nostats == NO) {
+		print_crypt_status(-1);
+		tfc_esay("\n");
+	}
 
-_ex:
+	xexit_no_nl = YES;
+
+_do_sil_exit:
 	if (noexit == YES) {
 		errno = 0;
 		return;
@@ -64,15 +71,16 @@ void xexit(int status)
 {
 	if (status > 1) goto _do_clean_and_exit;
 
-	xclose(sfd);
 	if (do_ftrunc > TFC_NO_FTRUNC) {
 		if (do_ftrunc == TFC_FTRUNC_TAIL) ftrunc_dfd = total_processed_dst;
 		if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
 	}
 	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
-	xclose(dfd);
 
 _do_clean_and_exit:
+	xclose(sfd);
+	xclose(dfd);
+
 	memset(srcblk, 0, sizeof(srcblk));
 	memset(dstblk, 0, sizeof(dstblk));
 
@@ -94,12 +102,15 @@ _do_clean_and_exit:
 	memset(pwdask, 0, sizeof(pwdask));
 	memset(pwdagain, 0, sizeof(pwdagain));
 
+	if (xexit_no_nl == NO) tfc_esay("\n");
 	exit(status);
 }
 
 void usage(void)
 {
 	tfc_yesno is_embedded_prog = NO;
+
+	xexit_no_nl = YES;
 
 	if (optopt == 'V') {
 		tfc_say("tfcrypt toolkit, version %s.", _TFCRYPT_VERSION);

@@ -52,9 +52,14 @@ void print_crypt_status(int signal)
 	int src_scale_idx, dst_scale_idx, wri_scale_idx, wr_speed_scale;
 	const char *oper_mode, *inplace;
 	static tfc_yesno last;
+	tfc_yesno finished = NO;
 
 	if (last == YES) return;
-	if (signal == 0 || signal == -1) last = YES;
+	if (signal <= 0) {
+		finished = YES;
+		do_stop = YES; /* error path or sksum finished */
+		if (signal == 0) last = YES;
+	}
 
 	switch (do_edcrypt) {
 		case TFC_DO_ENCRYPT: oper_mode = "encrypted"; break;
@@ -87,7 +92,6 @@ void print_crypt_status(int signal)
 			oper_mode,
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			wr_speed, human_wr_speed, tfc_getscale(wr_speed_scale), seconds);
-		tfc_esay("\n");
 		xexit(0);
 	}
 
@@ -98,7 +102,7 @@ void print_crypt_status(int signal)
 		tfc_nfsay(stderr, "%s%s%s:"
 			" %s %.2f%s,"
 			" %.2f%s B/s @%s",
-			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
+			inplace, (finished && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			oper_mode,
 			human_totalproc_dst, tfc_getscale(dst_scale_idx),
 			human_wr_speed, tfc_getscale(wr_speed_scale), tfc_format_time(total_time));
@@ -107,7 +111,7 @@ void print_crypt_status(int signal)
 		if (ctr_mode <= TFC_MODE_PLAIN) tfc_nfsay(stderr, "%s%s%s: read: %llu (%.2f%s),"
 			" %s %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
+			inplace, (finished && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
@@ -116,7 +120,7 @@ void print_crypt_status(int signal)
 			" %s %s %llu (%.2f%s) bytes,"
 			" written %llu (%.2f%s) bytes,"
 			" (%llu (%.2f%s) B/s), time %s",
-			inplace, (last && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
+			inplace, (finished && show_when_done) ? "finished: " : "", tfc_format_pid(progname),
 			total_processed_src, human_totalproc_src, tfc_getscale(src_scale_idx),
 			tfc_modename(ctr_mode), oper_mode,
 			total_processed_dst, human_totalproc_dst, tfc_getscale(dst_scale_idx),
@@ -125,13 +129,9 @@ void print_crypt_status(int signal)
 	}
 
 	if (do_stop == NO && do_statline_dynamic == NO) tfc_esay("\n");
-	if (last) tfc_esay("\n");
 	statline_was_shown = YES;
 
-	if ((signal == SIGINT || signal == SIGTERM) && do_stop == YES) {
-		tfc_esay("\n");
-		exit_sigterm(signal);
-	}
+	if ((signal == SIGINT || signal == SIGTERM) && do_stop == YES) exit_sigterm(signal);
 
 	delta_processed = 0;
 	tfc_getcurtime(&delta_time);
