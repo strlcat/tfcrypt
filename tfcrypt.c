@@ -456,6 +456,33 @@ _baddfname:
 						}
 						else oseek = tfc_modifysize(oseek, strchr(s, ':'));
 					}
+					else if (!strncmp(s, "ioseek", 6) && *(s+6) == '=') {
+						s += 7;
+
+						iseek = tfc_humanfsize(s, &stoi);
+						if (!str_empty(stoi)) {
+							iseek = tfc_fnamesize(s, YES);
+							iseek = tfc_modifysize(iseek, strchr(s, ':'));
+							if (iseek == NOFSIZE) xerror(NO, YES, YES,
+							"%s: invalid iseek value", s);
+						}
+						else iseek = tfc_modifysize(iseek, strchr(s, ':'));
+						if (ctr_mode != TFC_MODE_PLAIN && iseek % TF_BLOCK_SIZE)
+							xerror(NO, YES, YES,
+								"%s: not round to TF block size "
+								"of %u bytes",
+								s, TFC_U(TF_BLOCK_SIZE));
+						iseek_blocks = iseek / TF_BLOCK_SIZE;
+
+						oseek = tfc_humanfsize(s, &stoi);
+						if (!str_empty(stoi)) {
+							oseek = tfc_fnamesize(s, YES);
+							oseek = tfc_modifysize(oseek, strchr(s, ':'));
+							if (oseek == NOFSIZE) xerror(NO, YES, YES,
+							"%s: invalid oseek value", s);
+						}
+						else oseek = tfc_modifysize(oseek, strchr(s, ':'));
+					}
 					else if (!strncmp(s, "count", 5) && *(s+5) == '=') {
 						s += 6;
 						maxlen = tfc_humanfsize(s, &stoi);

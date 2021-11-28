@@ -164,6 +164,8 @@ void usage(void)
 		tfc_say("    iobs=val: set IO block size value. Must not exceed %u bytes.", TFC_U(TFC_BLKSIZE));
 		tfc_say("    iseek=val: seek source file/device by these val bytes.");
 		tfc_say("    oseek=val: seek destination file/device by these val bytes.");
+		tfc_say("    ioseek=val: seek both source and destination.");
+		tfc_say("    ioseek is equal to iseek and oseek.");
 		tfc_say("    count=val: process only these val bytes, both input and output.");
 		tfc_say("    ftrunc=val: truncate output file to these val bytes before closing it.");
 		tfc_say("    ftrunc=tail: truncate output's tail, leaving only processed data.");
@@ -350,6 +352,8 @@ void usage(void)
 	tfc_say("    ixctr=val: Increment initial counter by this val bytes.");
 	tfc_say("    Internally this number is translated into number of %u byte blocks.", TFC_U(TF_BLOCK_SIZE));
 	tfc_say("    oseek=val: seek destination file/device by these val bytes.");
+	tfc_say("    ioseek=val: seek both source and destination.");
+	tfc_say("    ioseek is equal to iseek and oseek.");
 	tfc_say("    count=val: process only these val bytes, both input and output.");
 	tfc_say("    ftrunc=val: truncate output file to these val bytes before closing it.");
 	tfc_say("    ftrunc=tail: truncate output's tail, leaving only processed data.");
