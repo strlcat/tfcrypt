@@ -773,12 +773,6 @@ _nokeyfd:
 		}
 		if (sfd == -1) xerror(NO, NO, YES, "%s", argv[idx]);
 
-		if (do_edcrypt == TFC_DO_DECRYPT && do_mac != NO && maxlen != NOFSIZE) {
-			if (verbose) tfc_esay("%s: disabling signature verification on "
-				"requested partial decryption.", tfc_format_pid(progname));
-			do_mac = NO;
-		}
-
 		if ((do_mac >= TFC_MAC_VRFY || do_mac == TFC_MAC_DROP) && !do_mac_file) {
 			maxlen = tfc_fdsize(sfd);
 			if (maxlen == NOFSIZE)
@@ -1024,12 +1018,6 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 		fchmod(krfd, 0600);
 		xclose(krfd);
 		xexit(0);
-	}
-
-	if (iseek_blocks && (do_edcrypt == TFC_DO_DECRYPT && do_mac != NO)) {
-		if (verbose) tfc_esay("%s: disabling signature verification on "
-			"requested partial decryption.", tfc_format_pid(progname));
-		do_mac = NO;
 	}
 
 	if (do_mac != NO) {
