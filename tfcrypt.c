@@ -1219,7 +1219,10 @@ _wagain:	lio = xwrite(dfd, pblk, lrem);
 _nowrite:	total_processed_dst += ldone;
 		delta_processed += ldone;
 
-		if (maxlen != NOFSIZE && total_processed_src >= maxlen) break;
+		if (maxlen != NOFSIZE && total_processed_src >= maxlen) {
+			do_stop = YES;
+			break;
+		}
 	}
 
 	errno = 0;
@@ -1374,7 +1377,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 		memset(tmpdata, 0, sizeof(tmpdata));
 	}
 
-	if (verbose || status_timer || do_stop == YES) print_crypt_status(0);
+	if (verbose || status_timer || (do_stop == YES && quiet == NO)) print_crypt_status(0);
 
 	xexit(exitcode);
 	return -1;
