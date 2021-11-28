@@ -93,7 +93,6 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	sigact.sa_flags = SA_RESTART;
 	sigact.sa_handler = print_crypt_status;
 	sigaction(SIGUSR1, &sigact, NULL);
-	sigaction(SIGTSTP, &sigact, NULL);
 	sigaction(SIGALRM, &sigact, NULL);
 	if (status_timer) setup_next_alarm(status_timer);
 	sigact.sa_handler = change_status_width;
@@ -104,11 +103,14 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 		sigact.sa_handler = print_crypt_status;
 		sigaction(SIGINT, &sigact, NULL);
 		sigaction(SIGTERM, &sigact, NULL);
+		sigaction(SIGTSTP, &sigact, NULL);
 	}
 	else {
 		sigact.sa_handler = exit_sigterm;
 		sigaction(SIGINT, &sigact, NULL);
 		sigaction(SIGTERM, &sigact, NULL);
+		sigact.sa_handler = handle_sigtstp;
+		sigaction(SIGTSTP, &sigact, NULL);
 	}
 	memset(&sigact, 0, sizeof(struct sigaction));
 

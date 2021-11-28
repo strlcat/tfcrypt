@@ -33,6 +33,11 @@ void exit_sigterm(int signal)
 	xexit(0);
 }
 
+void handle_sigtstp(int signal)
+{
+	if (signal == SIGTSTP) kill(getpid(), SIGSTOP);
+}
+
 void print_crypt_status(int signal)
 {
 	tfc_fsize wr_speed;
@@ -125,7 +130,7 @@ void print_crypt_status(int signal)
 	delta_processed = 0;
 	tfc_getcurtime(&delta_time);
 
-	if (signal == SIGTSTP) kill(getpid(), SIGSTOP);
+	handle_sigtstp(signal);
 
 	if (status_timer) setup_next_alarm(status_timer);
 }

@@ -200,6 +200,7 @@ void hex2bin(void *d, const char *s);
 void tfc_finirandom(void);
 void tfc_getrandom(void *buf, size_t sz);
 void exit_sigterm(int signal);
+void handle_sigtstp(int signal);
 void print_crypt_status(int signal);
 void change_status_width(int signal);
 void change_status_timer(int signal);
