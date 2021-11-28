@@ -62,6 +62,14 @@ _ex:
 
 void xexit(int status)
 {
+	xclose(sfd);
+	if (do_ftrunc > TFC_NO_FTRUNC) {
+		if (do_ftrunc == TFC_FTRUNC_TAIL) ftrunc_dfd = total_processed_dst;
+		if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
+	}
+	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
+	xclose(dfd);
+
 	memset(srcblk, 0, sizeof(srcblk));
 	memset(dstblk, 0, sizeof(dstblk));
 

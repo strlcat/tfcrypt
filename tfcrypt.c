@@ -1374,14 +1374,6 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 
 	if (verbose || status_timer || do_stop == YES) print_crypt_status(0);
 
-	if (do_preserve_time) fcopy_matime(dfd, &s_stat);
-	xclose(sfd);
-	if (do_ftrunc > TFC_NO_FTRUNC) {
-		if (do_ftrunc == TFC_FTRUNC_TAIL) ftrunc_dfd = total_processed_dst;
-		if (ftruncate(dfd, (off_t)ftrunc_dfd) == -1) xerror(YES, NO, YES, "ftruncate(%d)", dfd);
-	}
-	xclose(dfd);
-
 	xexit(exitcode);
 	return -1;
 }
