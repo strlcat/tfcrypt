@@ -89,7 +89,7 @@ void tfc_getcurtime(tfc_useconds *tx)
 	memset(&t, 0, sizeof(t));
 
 	gettimeofday(&t, NULL);
-	*tx = t.tv_sec * 1000000 + t.tv_usec;
+	*tx = (tfc_useconds)t.tv_sec * 1000000 + t.tv_usec;
 
 	memset(&t, 0, sizeof(t));
 }
