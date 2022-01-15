@@ -15,9 +15,7 @@ with Skein hash function.
 This program is incompatible with older, "tf1024" tfcrypt version. This version aims to
 provide a portable encryption tool to encrypt fixed media such as disks and archive files,
 as well as to provide decades long privacy for encrypted data.
-Supported modes of operation: CTR, ECB, CBC, XTS, OCB and arbitrary long keystream.
-OCB mode does not use Skein hash function to hash and verify message, instead, it does
-a single pass crypt and verify, thus, it is faster than other modes when both crypt and verify.
+Supported modes of operation: CTR, ECB, CBC, XTS and arbitrary long keystream.
 
 Additionally, this version provides a way to virtually "extend" key size to 1280 bits,
 by enabling "fullkey" option or changing "do_full_key" default setting in tfcrypt_defs.h.
@@ -29,7 +27,7 @@ Please note that this encryption software includes Threefish cipher, which is te
 slow on 32 bit systems. This way, it cannot be efficiently used on pure 32 bit machines.
 
 Threefish contained here is stripped off of it's tweak property, thus, it is turned into a
-regular block cipher. To add tweakability, either XTS or OCB modes of operation are used.
+regular block cipher. To add tweakability, XTS modes of operation is used.
 Default wide block size is 4096 bytes.
 
 SKEIN NOTES

@@ -49,7 +49,7 @@ void do_benchmark(tfc_useconds useconds, double dseconds)
 	tfc_getrandom(ctr, sizeof(ctr));
 	if (do_mac != NO) {
 		tfc_getrandom(mackey, sizeof(mackey));
-		if (ctr_mode < TFC_MODE_OCB) skein_init_key(&sk, mackey, macbits);
+		skein_init_key(&sk, mackey, macbits);
 	}
 	if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 	if (ctr_mode == TFC_MODE_XTS) tfc_getrandom(xtskey, sizeof(xtskey));
@@ -63,8 +63,7 @@ void do_benchmark(tfc_useconds useconds, double dseconds)
 		lblock = blk_len_adj(NOFSIZE, total_processed_src, blksize);
 		total_processed_src += lblock;
 
-		if (do_mac != NO && ctr_mode < TFC_MODE_OCB)
-			skein_update(&sk, srcblk, lblock);
+		if (do_mac != NO) skein_update(&sk, srcblk, lblock);
 
 		if (ctr_mode == TFC_MODE_CTR) tf_ctr_crypt(key, ctr, srcblk, srcblk, lblock);
 		else if (ctr_mode == TFC_MODE_STREAM) tf_stream_crypt(&tfe, srcblk, srcblk, lblock);
@@ -80,11 +79,6 @@ void do_benchmark(tfc_useconds useconds, double dseconds)
 			tf_cbc_encrypt(key, ctr, srcblk, srcblk, lblock);
 		else if (ctr_mode == TFC_MODE_CBC && do_edcrypt == TFC_DO_DECRYPT)
 			tf_cbc_decrypt(key, ctr, srcblk, srcblk, lblock);
-
-		else if (ctr_mode == TFC_MODE_OCB && do_edcrypt == TFC_DO_ENCRYPT)
-			tf_ocb_encrypt(key, ctr, srcblk, do_mac ? macresult : NULL, srcblk, lblock, xtsblocks);
-		else if (ctr_mode == TFC_MODE_OCB && do_edcrypt == TFC_DO_DECRYPT)
-			tf_ocb_decrypt(key, ctr, srcblk, do_mac ? macresult : NULL, srcblk, lblock, xtsblocks);
 
 		delta_processed += lblock;
 	}

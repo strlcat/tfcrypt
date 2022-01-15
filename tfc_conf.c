@@ -80,8 +80,6 @@ _nspc:
 				ctr_mode = TFC_MODE_ECB;
 			else if (!strcasecmp(d, "xts"))
 				ctr_mode = TFC_MODE_XTS;
-			else if (!strcasecmp(d, "ocb"))
-				ctr_mode = TFC_MODE_OCB;
 			else xerror(NO, YES, YES, "[%s] ctr_mode=%s: invalid mode of operation", path, d);
 		}
 		else if (!strcmp(s, "tfc_salt")) {

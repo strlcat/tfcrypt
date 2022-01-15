@@ -97,7 +97,6 @@ const char *tfc_modename(int mode)
 		case TFC_MODE_XTS: return "XTS";
 		case TFC_MODE_ECB: return "ECB";
 		case TFC_MODE_CBC: return "CBC";
-		case TFC_MODE_OCB: return "OCB";
 	}
 
 	return NULL;

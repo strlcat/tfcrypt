@@ -245,7 +245,7 @@ void usage(void)
 	tfc_say("  -w: overwrite source file. If not file, ignored.");
 	tfc_say("  -n TURNS: number of turns to perform in Skein function.");
 	tfc_say("    Default is always defined when building tfcrypt.");
-	tfc_say("  -C mode: mode of operation: CTR, STREAM, XTS, ECB, CBC, OCB.");
+	tfc_say("  -C mode: mode of operation: CTR, STREAM, XTS, ECB, CBC.");
 	tfc_say("    Default encryption mode can be changed when building tfcrypt.");
 	tfc_say("  -c opt: initial CTR value initialisation mode:");
 	tfc_say("    show: do default action, then dump CTR value to stderr,");

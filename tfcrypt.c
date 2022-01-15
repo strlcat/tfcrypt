@@ -212,8 +212,6 @@ _baddfname:
 					ctr_mode = TFC_MODE_ECB;
 				else if (!strcasecmp(optarg, "xts"))
 					ctr_mode = TFC_MODE_XTS;
-				else if (!strcasecmp(optarg, "ocb"))
-					ctr_mode = TFC_MODE_OCB;
 				else xerror(NO, YES, YES, "%s: invalid mode of operation", optarg);
 				break;
 			case 'P':
@@ -1052,12 +1050,10 @@ _xts2genkey:	if (xwrite(krfd, pblk, TF_FROM_BITS(TFC_KEY_BITS)) == NOSIZE) xerro
 
 	if (do_mac != NO) {
 		if (mackey_opt == TFC_MACKEY_RAWKEY) skein(mackey, TF_MAX_BITS, key, key, TF_FROM_BITS(TFC_KEY_BITS));
-		if (ctr_mode < TFC_MODE_OCB) {
-			if (verbose) tfc_esay("%s: doing MAC calculation, processing speed "
-				"will be slower.", tfc_format_pid(progname));
-			if (mackey_opt) skein_init_key(&sk, mackey, macbits);
-			else skein_init(&sk, macbits);
-		}
+		if (verbose) tfc_esay("%s: doing MAC calculation, processing speed "
+			"will be slower.", tfc_format_pid(progname));
+		if (mackey_opt) skein_init_key(&sk, mackey, macbits);
+		else skein_init(&sk, macbits);
 	}
 
 	if (!counter_file && counter_opt <= TFC_CTR_SHOW && ctr_mode != TFC_MODE_ECB) {
@@ -1227,8 +1223,7 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 			memset(srcblk+orig, 0, sizeof(srcblk)-orig);
 		}
 
-		if (do_mac == TFC_MAC_SIGN && ctr_mode < TFC_MODE_OCB)
-			skein_update(&sk, srcblk, ldone);
+		if (do_mac == TFC_MAC_SIGN) skein_update(&sk, srcblk, ldone);
 
 		if (ctr_mode == TFC_MODE_CTR) tf_ctr_crypt(key, ctr, dstblk, srcblk, ldone);
 		else if (ctr_mode == TFC_MODE_STREAM) tf_stream_crypt(&tfe, dstblk, srcblk, ldone);
@@ -1245,16 +1240,10 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 		else if (ctr_mode == TFC_MODE_CBC && do_edcrypt == TFC_DO_DECRYPT)
 			tf_cbc_decrypt(key, ctr, dstblk, srcblk, ldone);
 
-		else if (ctr_mode == TFC_MODE_OCB && do_edcrypt == TFC_DO_ENCRYPT)
-			tf_ocb_encrypt(key, ctr, dstblk, do_mac == TFC_MAC_SIGN ? macresult : NULL, srcblk, ldone, xtsblocks);
-		else if (ctr_mode == TFC_MODE_OCB && do_edcrypt == TFC_DO_DECRYPT)
-			tf_ocb_decrypt(key, ctr, dstblk, do_mac >= TFC_MAC_VRFY ? macresult : NULL, srcblk, ldone, xtsblocks);
-
 		else if (ctr_mode == TFC_MODE_PLAIN)
 			memcpy(dstblk, srcblk, ldone);
 
-		if (do_mac >= TFC_MAC_VRFY && ctr_mode < TFC_MODE_OCB)
-			skein_update(&sk, dstblk, ldone);
+		if (do_mac >= TFC_MAC_VRFY) skein_update(&sk, dstblk, ldone);
 		if (do_mac >= TFC_MAC_JUST_VRFY) goto _nowrite;
 
 		pblk = dstblk;
@@ -1337,15 +1326,13 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 			goto _shortmac;
 		}
 
-		if (ctr_mode < TFC_MODE_OCB) skein_final(macresult, &sk);
-		else skein(macresult, macbits, mackey, macresult, TF_FROM_BITS(macbits));
+		skein_final(macresult, &sk);
 
 		if (ctr_mode == TFC_MODE_CTR) tf_ctr_crypt(key, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_STREAM) tf_stream_crypt(&tfe, tmpdata, macvrfy, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_XTS) tf_xts_decrypt(key, xtskey, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits), xtsblocks);
 		else if (ctr_mode == TFC_MODE_ECB) tf_ecb_decrypt(key, tmpdata, macvrfy, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_CBC) tf_cbc_decrypt(key, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits));
-		else if (ctr_mode == TFC_MODE_OCB) tf_ocb_decrypt(key, ctr, tmpdata, NULL, macvrfy, TF_FROM_BITS(macbits), xtsblocks);
 
 		if (!memcmp(tmpdata, macresult, TF_FROM_BITS(macbits))) {
 			if (quiet == NO) {
@@ -1376,15 +1363,13 @@ _shortmac:	memset(macvrfy, 0, sizeof(macvrfy));
 		memset(tmpdata, 0, sizeof(tmpdata));
 	}
 	else if (do_mac == TFC_MAC_SIGN) {
-		if (ctr_mode < TFC_MODE_OCB) skein_final(macresult, &sk);
-		else skein(macresult, macbits, mackey, macresult, TF_FROM_BITS(macbits));
+		skein_final(macresult, &sk);
 
 		if (ctr_mode == TFC_MODE_CTR) tf_ctr_crypt(key, ctr, tmpdata, macresult, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_STREAM) tf_stream_crypt(&tfe, tmpdata, macresult, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_XTS) tf_xts_encrypt(key, xtskey, ctr, tmpdata, macresult, TF_FROM_BITS(macbits), xtsblocks);
 		else if (ctr_mode == TFC_MODE_ECB) tf_ecb_encrypt(key, tmpdata, macresult, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_CBC) tf_cbc_encrypt(key, ctr, tmpdata, macresult, TF_FROM_BITS(macbits));
-		else if (ctr_mode == TFC_MODE_OCB) tf_ocb_encrypt(key, ctr, tmpdata, NULL, macresult, TF_FROM_BITS(macbits), xtsblocks);
 		memset(macresult, 0, sizeof(macresult));
 
 		if (!do_mac_file) {
