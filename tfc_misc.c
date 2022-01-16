@@ -102,6 +102,17 @@ const char *tfc_modename(int mode)
 	return NULL;
 }
 
+tfc_yesno tfc_is_stream(int mode)
+{
+	switch (mode) {
+		case TFC_MODE_PLAIN:
+		case TFC_MODE_CTR:
+		case TFC_MODE_STREAM: return YES;
+	}
+
+	return NO;
+}
+
 void tfc_getcurtime(tfc_useconds *tx)
 {
 	struct timespec t;

@@ -362,7 +362,7 @@ _baddfname:
 							"%s: invalid block size value", s);
 						}
 						else blksize = (size_t)tfc_modifysize((tfc_fsize)blksize, strchr(s, ':'));
-						if (do_edcrypt != TFC_DO_PLAIN && blksize < TF_BLOCK_SIZE) xerror(NO, YES, YES,
+						if (!tfc_is_stream(ctr_mode) && blksize < TF_BLOCK_SIZE) xerror(NO, YES, YES,
 							"%s: block size is lesser than TF_BLOCK_SIZE (%u bytes)", s, TFC_U(TF_BLOCK_SIZE));
 						if (blksize > TFC_BLKSIZE) xerror(NO, YES, YES,
 							"%s: block size exceeds %u bytes",
