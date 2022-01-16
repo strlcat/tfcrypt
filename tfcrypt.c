@@ -30,6 +30,7 @@
 
 static tfc_byte svctr[TF_BLOCK_SIZE];
 static tfc_fsize rwd, do_read_loops, loopcnt;
+static tfc_yesno unbuffered;
 
 static void open_log(const char *logfile)
 {
@@ -346,6 +347,12 @@ _baddfname:
 						show_when_done = YES;
 					else if (!strcmp(s, "pid"))
 						show_pid = YES;
+					else if (!strcmp(s, "nobuf")) {
+						if (!tfc_is_freestream(ctr_mode)) xerror(NO, YES, YES,
+							"cannot activate unbuffered mode for non-stream cipher mode %s!",
+							tfc_modename(ctr_mode));
+						else unbuffered = YES;
+					}
 					else if (!strncmp(s, "readloops", 9) && *(s+9) == '=') {
 						do_read_loops = tfc_humanfsize(s+10, &stoi);
 						if (!str_empty(stoi)) do_read_loops = NOSIZE;
@@ -362,7 +369,7 @@ _baddfname:
 							"%s: invalid block size value", s);
 						}
 						else blksize = (size_t)tfc_modifysize((tfc_fsize)blksize, strchr(s, ':'));
-						if (!tfc_is_stream(ctr_mode) && blksize < TF_BLOCK_SIZE) xerror(NO, YES, YES,
+						if (!tfc_is_freestream(ctr_mode) && blksize < TF_BLOCK_SIZE) xerror(NO, YES, YES,
 							"%s: block size is lesser than TF_BLOCK_SIZE (%u bytes)", s, TFC_U(TF_BLOCK_SIZE));
 						if (blksize > TFC_BLKSIZE) xerror(NO, YES, YES,
 							"%s: block size exceeds %u bytes",
@@ -1209,7 +1216,7 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 				default: xerror(NO, NO, NO, "%s", srcfname); break;
 			}
 		}
-		if (lio && lio < lrem) {
+		if (unbuffered == NO && lio && lio < lrem) {
 			pblk += lio;
 			lrem -= lio;
 			goto _ragain;

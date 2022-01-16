@@ -102,11 +102,10 @@ const char *tfc_modename(int mode)
 	return NULL;
 }
 
-tfc_yesno tfc_is_stream(int mode)
+tfc_yesno tfc_is_freestream(int mode)
 {
 	switch (mode) {
 		case TFC_MODE_PLAIN:
-		case TFC_MODE_CTR:
 		case TFC_MODE_STREAM: return YES;
 	}
 

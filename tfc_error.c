@@ -162,6 +162,7 @@ void usage(void)
 		tfc_say("    when the whole status line width is smaller than tty width.");
 		tfc_say("    statless: emit less information in status line (only processed data).");
 		tfc_say("    iobs=val: set IO block size value. Must not exceed %u bytes.", TFC_U(TFC_BLKSIZE));
+		tfc_say("    nobuf: disable IO buffering, write as soon as data received (only for stream ciphers!)");
 		tfc_say("    iseek=val: seek source file/device by these val bytes.");
 		tfc_say("    oseek=val: seek destination file/device by these val bytes.");
 		tfc_say("    ioseek=val: seek both source and destination.");
@@ -341,6 +342,7 @@ void usage(void)
 	tfc_say("    shorthex: with -H, do not print printable characters, dump only hex string.");
 	tfc_say("    logfile: (same as -o) redirect all messages to logfile instead of stderr.");
 	tfc_say("    iobs=val: set IO block size value. Must not exceed %u bytes.", TFC_U(TFC_BLKSIZE));
+	tfc_say("    nobuf: disable IO buffering, write as soon as data received (only for stream ciphers!)");
 	tfc_say("    xtsblocks=val: use these nr of TF blocks per XTS block. Default is %u.", TFC_U(TFC_XTSBLOCKS));
 	tfc_say("    iseek=val: seek source file/device by these val bytes.");
 	tfc_say("    Initial counter is adjusted automatically.");

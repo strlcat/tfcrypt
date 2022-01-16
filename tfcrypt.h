@@ -193,7 +193,7 @@ int xxopen(tfc_yesno noerr, const char *pathname, int flags);
 int xopen(const char *pathname, int flags);
 void xclose(int fd);
 const char *tfc_modename(int mode);
-tfc_yesno tfc_is_stream(int mode);
+tfc_yesno tfc_is_freestream(int mode);
 void tfc_getcurtime(tfc_useconds *tx);
 char *tfc_format_time(tfc_useconds t);
 char *tfc_format_pid(const char *str);
