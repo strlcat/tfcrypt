@@ -130,6 +130,7 @@ static void say_hint(const void *data, size_t szdata, const char *prompt)
 
 int main(int argc, char **argv)
 {
+	tfc_yesno flipfd;
 	int c;
 	double td;
 	char *s, *d, *t, *stoi;
@@ -152,12 +153,18 @@ _baddfname:
 
 	if (!strcmp(progname, "iotool")) {
 		do_edcrypt = TFC_DO_PLAIN;
-		password = YES;
 		ctr_mode = TFC_MODE_PLAIN;
 	}
 
+	if (!strcmp(progname, "xor")) {
+		do_edcrypt = TFC_DO_PLAIN;
+		ctr_mode = TFC_MODE_XOR;
+		/* xor: default to stdin if invoked without args */
+		kfd = 0;
+	}
+
 	opterr = 0;
-	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:Pkzxc:l:qedn:vV:pwE:o:O:S:AmuM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:PXkzxc:l:qedn:vV:pwE:o:O:S:AmuM:R:Z:WHD:")) != -1) {
 		switch (c) {
 			case 'L':
 				read_defaults(optarg, NO);
@@ -218,9 +225,14 @@ _baddfname:
 				else xerror(NO, YES, YES, "%s: invalid mode of operation", optarg);
 				break;
 			case 'P':
+			case 'X':
 				do_edcrypt = TFC_DO_PLAIN;
-				password = YES;
-				ctr_mode = TFC_MODE_PLAIN;
+				if (c == 'X') {
+					ctr_mode = TFC_MODE_XOR;
+					/* xor: default to stdin if invoked without args */
+					kfd = 0;
+				}
+				else ctr_mode = TFC_MODE_PLAIN;
 				break;
 			case 'e':
 				if (do_edcrypt != TFC_DO_PLAIN) do_edcrypt = TFC_DO_ENCRYPT;
@@ -404,7 +416,7 @@ _baddfname:
 							"%s: invalid iseek value", s);
 						}
 						else iseek = tfc_modifysize(iseek, strchr(s, ':'));
-						if (ctr_mode != TFC_MODE_PLAIN && iseek % TF_BLOCK_SIZE)
+						if (do_edcrypt != TFC_DO_PLAIN && iseek % TF_BLOCK_SIZE)
 							xerror(NO, YES, YES,
 								"%s: not round to TF block size "
 								"of %u bytes",
@@ -474,7 +486,7 @@ _baddfname:
 							"%s: invalid iseek value", s);
 						}
 						else iseek = tfc_modifysize(iseek, strchr(s, ':'));
-						if (ctr_mode != TFC_MODE_PLAIN && iseek % TF_BLOCK_SIZE)
+						if (do_edcrypt != TFC_DO_PLAIN && iseek % TF_BLOCK_SIZE)
 							xerror(NO, YES, YES,
 								"%s: not round to TF block size "
 								"of %u bytes",
@@ -675,9 +687,8 @@ _baddfname:
 		xerror(NO, YES, YES, "Cannot encrypt and read CTR from source!");
 	if (overwrite_source && counter_opt == TFC_CTR_RAND)
 		xerror(NO, YES, YES, "Cannot embed a CTR into file when overwriting it!");
-	if (ctr_mode == TFC_MODE_PLAIN
-	&& (do_edcrypt || do_mac || rawkey
-	|| mackey_opt || counter_opt || counter_file))
+	if (do_edcrypt == TFC_DO_PLAIN
+	&& (do_mac || saltf || rawkey || mackey_opt || counter_opt || counter_file))
 		xerror(NO, YES, YES, "Encryption facility is disabled when in plain IO mode.");
 
 	errno = 0;
@@ -777,9 +788,17 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 	idx = optind;
 
 	if (argv[idx]) {
-		if (password || rawkey > TFC_RAWKEY_KEYFILE) goto _nokeyfd;
+		if ((do_edcrypt == TFC_DO_PLAIN && ctr_mode == TFC_MODE_PLAIN)
+		|| password
+		|| rawkey > TFC_RAWKEY_KEYFILE) goto _nokeyfd;
 		if (!strcmp(argv[idx], "-")) kfd = 0;
 		else kfd = xopen(argv[idx], O_RDONLY | O_LARGEFILE);
+
+		if (do_edcrypt == TFC_DO_PLAIN && ctr_mode == TFC_MODE_XOR) {
+			/* out: don't erase kfname if xor */
+			idx++;
+			goto _nokeyfd;
+		}
 
 		lio = strnlen(argv[idx], PATH_MAX);
 		memset(argv[idx], '*', lio);
@@ -880,7 +899,7 @@ _ctrskip1:
 			xerror(ignore_seek_errors, NO, NO, "%s: seek failed", srcfname);
 	}
 
-	if (ctr_mode == TFC_MODE_PLAIN) goto _plain;
+	if (do_edcrypt == TFC_DO_PLAIN) goto _plain;
 
 	if (verbose) tfc_esay("%s: hashing password", tfc_format_pid(progname));
 
@@ -1181,20 +1200,23 @@ _decrypt_again_vrfy2:
 		memset(svctr, 0, TF_BLOCK_SIZE);
 	}
 
+#define FLFD(x, y) (flipfd ? y : x)
 _nodecrypt_again_vrfy2:
 	loopcnt = 1;
 	errno = 0;
 	do_stop = NO;
+	flipfd = NO;
 	while (1) {
 		if (do_stop) break;
+		if (ctr_mode == TFC_MODE_XOR) flipfd = NO;
 		pblk = srcblk;
-		ldone = 0;
+_nextblk:	ldone = 0;
 		lrem = lblock = blk_len_adj(maxlen, total_processed_src, blksize);
-		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(sfd);
-_ragain:	lio = xread(sfd, pblk, lrem);
+		if (error_action == TFC_ERRACT_SYNC) rdpos = tfc_fdgetpos(FLFD(sfd, kfd));
+_ragain:	lio = xread(FLFD(sfd, kfd), pblk, lrem);
 		if (lio == 0) {
-			if ((do_read_loops != 0 && sfd != 0) && (loopcnt < do_read_loops)) {
-				lseek(sfd, 0L, SEEK_SET);
+			if ((do_read_loops != 0 && FLFD(sfd, kfd) != 0) && (loopcnt < do_read_loops)) {
+				lseek(FLFD(sfd, kfd), 0L, SEEK_SET);
 				loopcnt++;
 				goto _ragain;
 			}
@@ -1212,8 +1234,8 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 					xerror(YES, NO, NO, "%s", srcfname);
 					lio = ldone = lrem = lblock;
 					memset(srcblk, 0, lio);
-					if (rdpos == NOFSIZE) lseek(sfd, lio, SEEK_CUR);
-					else lseek(sfd, rdpos + lio, SEEK_SET);
+					if (rdpos == NOFSIZE) lseek(FLFD(sfd, kfd), lio, SEEK_CUR);
+					else lseek(FLFD(sfd, kfd), rdpos + lio, SEEK_SET);
 					break;
 				default: xerror(NO, NO, NO, "%s", srcfname); break;
 			}
@@ -1230,6 +1252,13 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 			ldone += (TF_BLOCK_SIZE - (ldone % TF_BLOCK_SIZE));
 			if (ldone > blksize) ldone = blksize;
 			memset(srcblk+orig, 0, sizeof(srcblk)-orig);
+		}
+
+		if (ctr_mode == TFC_MODE_XOR && flipfd == NO) {
+			if (do_stop) blksize = ldone;
+			flipfd = YES;
+			pblk = dstblk;
+			goto _nextblk;
 		}
 
 		if (do_mac == TFC_MAC_SIGN) skein_update(&sk, srcblk, ldone);
@@ -1255,6 +1284,9 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 
 		else if (ctr_mode == TFC_MODE_PLAIN)
 			memcpy(dstblk, srcblk, ldone);
+
+		else if (ctr_mode == TFC_MODE_XOR)
+			xor_block(dstblk, srcblk, ldone);
 
 		if (do_mac >= TFC_MAC_VRFY) skein_update(&sk, dstblk, ldone);
 		if (do_mac >= TFC_MAC_JUST_VRFY) goto _nowrite;

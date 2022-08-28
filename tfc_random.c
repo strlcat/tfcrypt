@@ -150,7 +150,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 			xerror(ignore_seek_errors, NO, NO, "%s: seek failed", foutname);
 	}
 
-	if (ctr_mode == TFC_MODE_PLAIN) memset(srcblk, 0, sizeof(srcblk));
+	if (do_edcrypt == TFC_DO_PLAIN) memset(srcblk, 0, sizeof(srcblk));
 
 	if (verbose) tfc_nfsay(stderr, "%s: writing %lld bytes to %s ... ",
 		tfc_format_pid(progname), nrbytes, foutname);
@@ -162,7 +162,7 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 		pblk = srcblk;
 		lblock = lrem = blk_len_adj(nrbytes, total_processed_src, blksize);
 
-		if (ctr_mode != TFC_MODE_PLAIN) tfc_getrandom(srcblk, lblock);
+		if (do_edcrypt != TFC_DO_PLAIN) tfc_getrandom(srcblk, lblock);
 
 		if (error_action == TFC_ERRACT_SYNC) wrpos = tfc_fdgetpos(fd);
 _wagain:	lio = xwrite(fd, pblk, lrem);

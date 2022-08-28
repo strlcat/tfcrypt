@@ -66,6 +66,7 @@ void print_crypt_status(int signal)
 		case TFC_DO_DECRYPT: oper_mode = "decrypted"; break;
 		default:
 			if (ctr_mode == TFC_MODE_PLAIN) oper_mode = "written";
+			else if (ctr_mode == TFC_MODE_XOR) oper_mode = "xored";
 			else if (ctr_mode == TFC_MODE_SKSUM) oper_mode = "hashed";
 			else oper_mode = NULL;
 			break;

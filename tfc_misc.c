@@ -107,6 +107,7 @@ tfc_yesno tfc_is_freestream(int mode)
 {
 	switch (mode) {
 		case TFC_MODE_PLAIN:
+		case TFC_MODE_XOR:
 		case TFC_MODE_STREAM: return YES;
 	}
 

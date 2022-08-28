@@ -114,7 +114,7 @@ void usage(void)
 
 	if (optopt == 'V') {
 		tfc_say("tfcrypt toolkit, version %s.", _TFCRYPT_VERSION);
-		if (ctr_mode != TFC_MODE_PLAIN) {
+		if (do_edcrypt != TFC_DO_PLAIN) {
 			char shash[64];
 
 			hash_defaults(shash, sizeof(shash));
@@ -208,6 +208,22 @@ void usage(void)
 		tfc_say("  -e: encode stream into base64.");
 		tfc_say("  -d: decode base64 stream.");
 		tfc_say("no error checking is performed.");
+		tfc_say("\n");
+	}
+	else if (!strcmp(progname, "xor")) {
+		is_embedded_prog = YES;
+		tfc_say("usage: %s [sourceX] [sourceY] [output]", progname);
+		tfc_say("\n");
+		tfc_say("tfcrypt embedded high performance XOR tool.");
+		tfc_say("It does XOR (multiply modulo 2) of each byte from sourceX");
+		tfc_say("each byte of sourceY and writes output.");
+		tfc_say("If filenames omitted, it is assumed to operate over");
+		tfc_say("standard in to standard out.");
+		tfc_say("If any of source files is shorter than another,");
+		tfc_say("then output is truncated to length of the shortest one.");
+		tfc_say("\n");
+		tfc_say("No error checking is performed.");
+		tfc_say("Please use iotool options there.");
 		tfc_say("\n");
 	}
 	else if (!strcmp(progname, "tfbench")) {
@@ -364,6 +380,7 @@ void usage(void)
 	tfc_say("    xctr=val: specify size in bytes of initial counter prepended or read.");
 	tfc_say("    fullkey: occupy tweak space by key space, extending key size by 256 bits.");
 	tfc_say("  -P: plain IO mode: disable encryption/decryption code at all.");
+	tfc_say("  -X: XOR IO mode: same as -P but do XOR of two streams.");
 	tfc_say("\n");
 	tfc_say("Default is to ask for password, then encrypt stdin into stdout.");
 	tfc_say("Some cmdline parameters may be mutually exclusive, or they can");
