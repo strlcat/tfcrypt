@@ -200,7 +200,7 @@ void usage(void)
 		tfc_say("them is specified as \"-\", then reads are performed from stdin.");
 		tfc_say("\n");
 	}
-	else if (!strcmp(progname, "tfbase64")) {
+	else if (!strcmp(progname, "base64")) {
 		is_embedded_prog = YES;
 		tfc_say("usage: %s [-ed] [source] [output]", progname);
 		tfc_say("\n");

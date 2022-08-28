@@ -10,4 +10,4 @@ tfcrypt
 tfcrypt.upx
 sksum
 tfbench
-tfbase64
+base64

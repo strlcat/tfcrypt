@@ -770,7 +770,7 @@ _mkragain:		lio = xread(mkfd, pblk, lrem);
 	|| !memcmp(progname+5, "sum", 3)
 	|| !memcmp(progname+6, "sum", 3)))))
 		do_sksum(progname, argv+optind);
-	if (!strcmp(progname, "tfbase64")) do_edbase64(argv+optind);
+	if (!strcmp(progname, "base64")) do_edbase64(argv+optind);
 
 	idx = optind;
 
