@@ -79,6 +79,10 @@ void do_benchmark(tfc_useconds useconds, double dseconds)
 			tf_cbc_encrypt(key, ctr, srcblk, srcblk, lblock);
 		else if (ctr_mode == TFC_MODE_CBC && do_edcrypt == TFC_DO_DECRYPT)
 			tf_cbc_decrypt(key, ctr, srcblk, srcblk, lblock);
+		else if (ctr_mode == TFC_MODE_PCBC && do_edcrypt == TFC_DO_ENCRYPT)
+			tf_pcbc_encrypt(key, ctr, srcblk, srcblk, lblock);
+		else if (ctr_mode == TFC_MODE_PCBC && do_edcrypt == TFC_DO_DECRYPT)
+			tf_pcbc_decrypt(key, ctr, srcblk, srcblk, lblock);
 
 		delta_processed += lblock;
 	}

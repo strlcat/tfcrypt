@@ -209,6 +209,8 @@ _baddfname:
 					ctr_mode = TFC_MODE_STREAM;
 				else if (!strcasecmp(optarg, "cbc"))
 					ctr_mode = TFC_MODE_CBC;
+				else if (!strcasecmp(optarg, "pcbc"))
+					ctr_mode = TFC_MODE_PCBC;
 				else if (!strcasecmp(optarg, "ecb"))
 					ctr_mode = TFC_MODE_ECB;
 				else if (!strcasecmp(optarg, "xts"))
@@ -1246,6 +1248,10 @@ _ragain:	lio = xread(sfd, pblk, lrem);
 			tf_cbc_encrypt(key, ctr, dstblk, srcblk, ldone);
 		else if (ctr_mode == TFC_MODE_CBC && do_edcrypt == TFC_DO_DECRYPT)
 			tf_cbc_decrypt(key, ctr, dstblk, srcblk, ldone);
+		else if (ctr_mode == TFC_MODE_PCBC && do_edcrypt == TFC_DO_ENCRYPT)
+			tf_pcbc_encrypt(key, ctr, dstblk, srcblk, ldone);
+		else if (ctr_mode == TFC_MODE_PCBC && do_edcrypt == TFC_DO_DECRYPT)
+			tf_pcbc_decrypt(key, ctr, dstblk, srcblk, ldone);
 
 		else if (ctr_mode == TFC_MODE_PLAIN)
 			memcpy(dstblk, srcblk, ldone);
@@ -1340,6 +1346,7 @@ _macragain:		lio = xread(sfd, pblk, lrem);
 		else if (ctr_mode == TFC_MODE_XTS) tf_xts_decrypt(key, xtskey, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits), xtsblocks);
 		else if (ctr_mode == TFC_MODE_ECB) tf_ecb_decrypt(key, tmpdata, macvrfy, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_CBC) tf_cbc_decrypt(key, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits));
+		else if (ctr_mode == TFC_MODE_PCBC) tf_pcbc_decrypt(key, ctr, tmpdata, macvrfy, TF_FROM_BITS(macbits));
 
 		if (!memcmp(tmpdata, macresult, TF_FROM_BITS(macbits))) {
 			if (quiet == NO) {
@@ -1377,6 +1384,7 @@ _shortmac:	memset(macvrfy, 0, sizeof(macvrfy));
 		else if (ctr_mode == TFC_MODE_XTS) tf_xts_encrypt(key, xtskey, ctr, tmpdata, macresult, TF_FROM_BITS(macbits), xtsblocks);
 		else if (ctr_mode == TFC_MODE_ECB) tf_ecb_encrypt(key, tmpdata, macresult, TF_FROM_BITS(macbits));
 		else if (ctr_mode == TFC_MODE_CBC) tf_cbc_encrypt(key, ctr, tmpdata, macresult, TF_FROM_BITS(macbits));
+		else if (ctr_mode == TFC_MODE_PCBC) tf_pcbc_encrypt(key, ctr, tmpdata, macresult, TF_FROM_BITS(macbits));
 		memset(macresult, 0, sizeof(macresult));
 
 		if (!do_mac_file) {

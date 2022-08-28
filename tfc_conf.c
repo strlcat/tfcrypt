@@ -76,6 +76,8 @@ _nspc:
 				ctr_mode = TFC_MODE_STREAM;
 			else if (!strcasecmp(d, "cbc"))
 				ctr_mode = TFC_MODE_CBC;
+			else if (!strcasecmp(d, "pcbc"))
+				ctr_mode = TFC_MODE_PCBC;
 			else if (!strcasecmp(d, "ecb"))
 				ctr_mode = TFC_MODE_ECB;
 			else if (!strcasecmp(d, "xts"))
