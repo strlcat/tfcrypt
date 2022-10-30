@@ -164,7 +164,7 @@ _baddfname:
 	}
 
 	opterr = 0;
-	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:PXkzxc:l:qedn:vV:pwE:o:O:S:AmuM:R:Z:WHD:")) != -1) {
+	while ((c = getopt(argc, argv, "L:s:aU:C:r:K:t:PXkzxc:l:qedn:vV:pwE:o:O:S:AmuM:R:Z:WHD:gj")) != -1) {
 		switch (c) {
 			case 'L':
 				read_defaults(optarg, NO);
@@ -174,6 +174,14 @@ _baddfname:
 				break;
 			case 'r':
 				randsource = optarg;
+				break;
+			case 'j':
+			case 'g':
+				if (c == 'j') ctr_mode = TFC_MODE_CTR;
+				else if (c == 'g') ctr_mode = TFC_MODE_STREAM;
+				if (do_edcrypt == TFC_DO_DECRYPT) counter_opt = TFC_CTR_HEAD;
+				else if (do_edcrypt == TFC_DO_ENCRYPT) counter_opt = TFC_CTR_RAND;
+				else xerror(NO, YES, YES, "plain mode was selected with -%c, cannot continue", c);
 				break;
 			case 'c':
 				if (!strcasecmp(optarg, "show"))

@@ -281,6 +281,8 @@ void usage(void)
 	tfc_say("  -v: print number of read and written encrypted bytes, and explain stages.");
 	tfc_say("  -V seconds: activate timer that will repeatedly print statistics to stderr.");
 	tfc_say("  -a: shortcut of -O xtime.");
+	tfc_say("  -g: same as '-e -C stream -c rand' or '-d -C stream -c head', depending on mode.");
+	tfc_say("  -j: same as '-e -C ctr -c rand' or '-d -C ctr -c head', depending on mode.");
 	tfc_say("  -l length: read only these first bytes of source.");
 	tfc_say("  -r <file>: specify random source instead of /dev/urandom.");
 	tfc_say("  -R nr_bytes: generate nr_bytes of random bytes suitable for use as key data.");
