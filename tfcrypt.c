@@ -1205,6 +1205,7 @@ _decrypt_again_vrfy2:
 		}
 		total_processed_src = rwd;
 		memcpy(ctr, svctr, TF_BLOCK_SIZE);
+		if (ctr_mode == TFC_MODE_STREAM) tfe_init_iv(&tfe, key, ctr);
 		memset(svctr, 0, TF_BLOCK_SIZE);
 	}
 
