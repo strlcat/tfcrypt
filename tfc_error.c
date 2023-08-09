@@ -28,8 +28,6 @@
 
 #include "tfcrypt.h"
 
-tfc_yesno xexit_no_nl;
-
 void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *fmt, ...)
 {
 	va_list ap;
@@ -39,7 +37,7 @@ void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *
 
 	va_start(ap, fmt);
 
-	if (statline_was_shown == YES && do_statline_dynamic == YES) tfc_esay("\n");
+	if (noexit == YES && (statline_was_shown == YES && do_statline_dynamic == YES)) tfc_esay("\n");
 
 	tfc_nfsay(stderr, "%s: ", tfc_format_pid(progname));
 	tfc_vfsay(stderr, NO, fmt, ap);
@@ -52,11 +50,8 @@ void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *
 	va_end(ap);
 
 	if (nostats == NO) {
-		print_crypt_status(-1);
-		tfc_esay("\n");
+		print_crypt_status(TFC_SIGERR);
 	}
-
-	xexit_no_nl = YES;
 
 _do_sil_exit:
 	if (noexit == YES) {
@@ -102,15 +97,12 @@ _do_clean_and_exit:
 	memset(pwdask, 0, sizeof(pwdask));
 	memset(pwdagain, 0, sizeof(pwdagain));
 
-	if (xexit_no_nl == NO) tfc_esay("\n");
 	exit(status);
 }
 
 void usage(void)
 {
 	tfc_yesno is_embedded_prog = NO;
-
-	xexit_no_nl = YES;
 
 	if (optopt == 'V') {
 		tfc_say("tfcrypt toolkit, version %s.", _TFCRYPT_VERSION);

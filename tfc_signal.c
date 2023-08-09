@@ -30,6 +30,7 @@
 
 void exit_sigterm(int signal)
 {
+	tfc_esay("\n");
 	xexit(0);
 }
 
@@ -55,10 +56,9 @@ void print_crypt_status(int signal)
 	tfc_yesno finished = NO;
 
 	if (last == YES) return;
-	if (signal <= 0) {
+	if (signal == TFC_SIGLAST) {
+		last = YES;
 		finished = YES;
-		do_stop = YES; /* error path or sksum finished */
-		if (signal == 0) last = YES;
 	}
 
 	switch (do_edcrypt) {
@@ -130,6 +130,7 @@ void print_crypt_status(int signal)
 	}
 
 	if (do_stop == NO && do_statline_dynamic == NO) tfc_esay("\n");
+	else if (signal == TFC_SIGLAST || signal == TFC_SIGERR) tfc_esay("\n");
 	statline_was_shown = YES;
 
 	if ((signal == SIGINT || signal == SIGTERM) && do_stop == YES) exit_sigterm(signal);

@@ -170,8 +170,6 @@ extern struct getpasswd_state getps;
 size_t xread(int fd, void *data, size_t szdata);
 size_t xwrite(int fd, const void *data, size_t szdata);
 
-extern tfc_yesno xexit_no_nl;
-
 void xerror(tfc_yesno noexit, tfc_yesno noerrno, tfc_yesno nostats, const char *fmt, ...);
 void xexit(int status);
 void usage(void);
@@ -238,5 +236,6 @@ enum {
 };
 enum { TFC_CTR_SHOW = 1, TFC_CTR_HEAD, TFC_CTR_RAND, TFC_CTR_ZERO, TFC_CTR_SSET };
 enum { TFC_NO_FTRUNC, TFC_DO_FTRUNC, TFC_FTRUNC_TAIL };
+enum { TFC_SIGLAST = -2, TFC_SIGERR = -1, TFC_SIGSTAT = 0 };
 
 #endif

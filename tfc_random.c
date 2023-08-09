@@ -30,15 +30,11 @@
 
 static void print_crypt_status_genrnd(int signal)
 {
-	if (signal == SIGTERM || signal == SIGINT) {
-		if (xexit_no_nl == YES) xexit_no_nl = NO;
-	}
 	print_crypt_status(signal);
 }
 
 static void exit_sigterm_genrnd(int signal)
 {
-	if (xexit_no_nl == YES) xexit_no_nl = NO;
 	exit_sigterm(signal);
 }
 
@@ -101,8 +97,6 @@ void gen_write_bytes(const char *foutname, tfc_fsize offset, tfc_fsize nrbytes)
 	int fd, x;
 	size_t lblock, lio, lrem;
 	tfc_byte *pblk;
-
-	xexit_no_nl = YES;
 
 	for (x = 1; x < NSIG; x++) signal(x, SIG_IGN);
 	memset(&sigact, 0, sizeof(sigact));
@@ -195,7 +189,7 @@ _wagain:	lio = xwrite(fd, pblk, lrem);
 
 	if (verbose) tfc_esay("done!");
 	if (verbose || status_timer) {
-		print_crypt_status(0);
+		print_crypt_status(TFC_SIGSTAT);
 		tfc_esay("\n");
 	}
 

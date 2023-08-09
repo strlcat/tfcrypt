@@ -31,7 +31,6 @@
 
 static void exit_sigterm_skein(int signal)
 {
-	if (xexit_no_nl == YES) xexit_no_nl = NO;
 	exit_sigterm(signal);
 }
 
@@ -118,7 +117,7 @@ _again:		lio = xread(fd, pblk, lrem);
 	skein_final(hash, &sk);
 	if (ctr_mode == TFC_MODE_SKSUM) {
 		if (verbose || status_timer) {
-			print_crypt_status(-1);
+			print_crypt_status(TFC_SIGSTAT);
 			tfc_esay("\n");
 		}
 		total_processed_src = total_processed_dst = delta_processed = 0;
@@ -140,8 +139,6 @@ void do_sksum(char *spec, char **fargv)
 	int fd = -1;
 	int x = 0, xx;
 	size_t bits;
-
-	xexit_no_nl = YES;
 
 	if (macbits < TF_MAX_BITS) {
 		bits = macbits;

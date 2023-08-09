@@ -36,8 +36,6 @@ void do_edbase64(char **fargv)
 	struct base64_encodestate estate;
 	size_t lread = 0;
 
-	xexit_no_nl = YES;
-
 	sfd = 0; dfd = 1;
 
 	if (fargv[0]) {

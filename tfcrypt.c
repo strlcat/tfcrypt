@@ -643,7 +643,6 @@ _baddfname:
 				break;
 			case 'q':
 				quiet = YES;
-				xexit_no_nl = YES;
 				verbose = NO;
 				do_full_hexdump = NO;
 				status_timer = 0;
@@ -1474,7 +1473,7 @@ _macwagain:		lio = xwrite(dfd, pblk, lrem);
 	}
 	else if (do_mac == TFC_MAC_DROP2) total_processed_src += SKEIN_DIGEST_SIZE;
 
-	if (verbose || status_timer || (do_stop == YES && quiet == NO)) print_crypt_status(0);
+	if (verbose || status_timer || (do_stop == YES && quiet == NO)) print_crypt_status(TFC_SIGLAST);
 
 	xexit(exitcode);
 	return -1;
